@@ -1,8 +1,8 @@
 const damping = 0.1;
-const mass = 1;
+const mass = 2;
 
 
-class Node {
+class Circle {
     constructor(x, y) {
         this.position = { x, y };
         this.velocity = { x: 0, y: 0 };
@@ -20,16 +20,9 @@ class Node {
 
     update() {
         const { x, y } = this.velocity;
-        console.log('velocity', { x, y });
         this.position.x += x;
         this.position.y += y;
-        console.log('position', this.position);
     }
-
-    // accelerate(x, y) {
-    //     this.velocity.x += x;
-    //     this.velocity.y += y;
-    // }
 
     applyForce(vector) {
         const { x, y } = vector;
@@ -38,9 +31,12 @@ class Node {
 
     }
 
-    render() {
-        console.log(this.position);
+    render(ctx) {
+        const { x, y } = this.position;
+
+        ctx.arc(x, y, 50, 0, 2 * Math.PI);
+        ctx.fill();
     }
 }
 
-export default Node;
+export default Circle;
