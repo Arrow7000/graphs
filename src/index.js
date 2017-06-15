@@ -1,4 +1,6 @@
-import Circle from './Circle';
+import Vertex from './Vertex';
+import Edge from './Edge';
+import each from 'lodash/each';
 
 
 const canvas = document.getElementById('canvas');
@@ -8,11 +10,25 @@ const frame = 1000 / 60;
 
 
 
+
+
+const node1 = new Vertex(300, 300);
+node1.applyForce({ x: 2, y: 0 })
+const node2 = new Vertex(600, 600);
+const edge = new Edge(node1, node2);
+
+const objects = [
+    node1,
+    node2,
+    edge,
+];
+
+
+
+
+
+
 let lastUpdate = new Date();
-
-const node = new Circle(500, 500);
-
-let goingRight = true;
 
 function update() {
     ctx.beginPath();
@@ -20,23 +36,10 @@ function update() {
 
 
 
-
-
-
-    const momentum = getVectorLen(node.getMomentum());
-    if (goingRight) {
-        node.applyForce({ x: 0.1, y: 0 });
-        // console.log('accelerating');
-    } else {
-        node.applyForce({ x: -0.1, y: 0 });
-        // console.log('braking');
-    }
-
-    if (momentum > 10) {
-        goingRight = false;
-    }
-    node.update();
-    node.render(ctx);
+    each(objects, obj => {
+        obj.update();
+        obj.render(ctx);
+    });
 
 
 
@@ -52,12 +55,3 @@ function update() {
 }
 
 update();
-
-
-
-function getVectorLen({ x, y }) {
-    const sqr = num => num * num
-    const { sqrt } = Math;
-
-    return sqrt(sqr(x) + sqr(y));
-}
