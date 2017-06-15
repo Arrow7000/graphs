@@ -43,7 +43,10 @@ class Edge {
 
 
         } else {
-
+            /**
+             * @TODO
+             * - implement repulsive force (reverse Hooke's law?)
+             */
         }
     }
 
