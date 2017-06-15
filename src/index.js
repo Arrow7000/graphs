@@ -13,7 +13,7 @@ const frame = 1000 / 60;
 
 
 const node1 = new Vertex(300, 300);
-node1.applyForce({ x: 2, y: 0 })
+node1.applyForce({ x: 5, y: 0 })
 const node2 = new Vertex(600, 600);
 const edge = new Edge(node1, node2);
 
@@ -29,10 +29,11 @@ const objects = [
 
 
 let lastUpdate = new Date();
+const { width, height } = canvas;
 
 function update() {
     ctx.beginPath();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, width, height);
 
 
 

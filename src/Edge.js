@@ -1,8 +1,6 @@
+import { springLength, springConstant } from './config';
 import { getDistance, subtrVec, multiplyVec, divideVec } from './utils';
 
-
-const restDistance = 100;
-const springConstant = 0.001; // k
 
 class Edge {
     constructor(vertexA, vertexB) {
@@ -22,32 +20,32 @@ class Edge {
         const { a, b } = this.vertices;
         const distance = this.getDistance();
 
-        if (distance > restDistance) {
-            // Hooke's law: F = -k(x - x0)
-            const forceVectorLength = -springConstant * (restDistance - distance);
-            const eachForce = forceVectorLength / 2;
+        // if (distance > restDistance) {
+        // Hooke's law: F = -k(x - x0)
+        const forceVectorLength = -springConstant * (springLength - distance);
+        const eachForce = forceVectorLength / 2;
 
-            {
-                const vecAtoB = subtrVec(b.position, a.position);
-                const directionFromAtoB = divideVec(vecAtoB, distance);
-                const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
-                a.applyForce(forceAtoB);
-            }
-
-            {
-                const vecBtoA = subtrVec(a.position, b.position);
-                const directionFromBtoA = divideVec(vecBtoA, distance);
-                const forceBtoA = multiplyVec(directionFromBtoA, eachForce);
-                b.applyForce(forceBtoA);
-            }
-
-
-        } else {
-            /**
-             * @TODO
-             * - implement repulsive force (reverse Hooke's law?)
-             */
+        {
+            const vecAtoB = subtrVec(b.position, a.position);
+            const directionFromAtoB = divideVec(vecAtoB, distance);
+            const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
+            a.applyForce(forceAtoB);
         }
+
+        {
+            const vecBtoA = subtrVec(a.position, b.position);
+            const directionFromBtoA = divideVec(vecBtoA, distance);
+            const forceBtoA = multiplyVec(directionFromBtoA, eachForce);
+            b.applyForce(forceBtoA);
+        }
+
+
+        // } else {
+        //     /**
+        //      * @TODO
+        //      * - implement repulsive force (reverse Hooke's law?)
+        //      */
+        // }
     }
 
 
@@ -60,7 +58,7 @@ class Edge {
 
     render(ctx) {
         const { a, b } = this.vertices;
-        console.log(`edge going from ${JSON.stringify(a.position)} to ${JSON.stringify(b.position)}`);
+        // console.log(`edge going from ${JSON.stringify(a.position)} to ${JSON.stringify(b.position)}`);
     }
 }
 
