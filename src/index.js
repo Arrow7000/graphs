@@ -32,7 +32,7 @@ function update() {
         // console.log('braking');
     }
 
-    if (momentum > 5) {
+    if (momentum > 10) {
         goingRight = false;
     }
     node.update();

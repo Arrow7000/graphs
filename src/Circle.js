@@ -1,4 +1,4 @@
-const damping = 0.1;
+const damping = 0.007;
 const mass = 2;
 
 
@@ -19,6 +19,9 @@ class Circle {
     }
 
     update() {
+        this.velocity.x *= 1 - damping;
+        this.velocity.y *= 1 - damping;
+
         const { x, y } = this.velocity;
         this.position.x += x;
         this.position.y += y;
