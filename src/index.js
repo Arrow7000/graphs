@@ -1,7 +1,9 @@
 import Vertex from './Vertex';
 import Edge from './Edge';
 import each from 'lodash/each';
+import range from 'lodash/range';
 
+const { random, floor } = Math;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -9,19 +11,41 @@ const frame = 1000 / 60;
 
 
 
+const side = 1000;
+const window = 250;
 
 
+// const nodes = range(floor(random() * 15))
+const nodes = range(7)
+    .map(() => {
+        const x = (side - window) / 2 + random() * window;
+        const y = (side - window) / 2 + random() * window;
+        return new Vertex(x, y);
+    });
 
-const node1 = new Vertex(300, 300);
-node1.applyForce({ x: 5, y: 0 })
-const node2 = new Vertex(600, 600);
-const edge = new Edge(node1, node2);
+const edges = range(2)
+    .map(num => {
+        // const aIndex = floor(random() * nodes.length);
+        // const bIndex = floor(random() * nodes.length);
+        const aIndex = num;
+        const bIndex = num + 1;
+        const nodeA = nodes[aIndex];
+        const nodeB = nodes[bIndex];
+        return new Edge(nodeA, nodeB);
+    });
 
-const objects = [
-    node1,
-    node2,
-    edge,
-];
+console.log(edges);
+
+// const node1 = new Vertex(300, 300);
+// node1.applyForce({ x: 5, y: 0 })
+// const node2 = new Vertex(600, 600);
+// const edge = new Edge(node1, node2);
+
+// const objects = [
+//     node1,
+//     node2,
+//     edge,
+// ];
 
 
 
@@ -37,8 +61,8 @@ function update() {
 
 
 
-    each(objects, obj => {
-        obj.update();
+    each([...nodes, ...edges], obj => {
+        obj.update(nodes);
         obj.render(ctx);
     });
 

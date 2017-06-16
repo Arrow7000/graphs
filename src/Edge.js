@@ -1,4 +1,4 @@
-import { springLength, springConstant } from './config';
+import { springLength, stiffness } from './config';
 import { getDistance, subtrVec, multiplyVec, divideVec } from './utils';
 
 
@@ -12,7 +12,7 @@ class Edge {
 
     getDistance() {
         const { a, b } = this.vertices;
-        const distance = getDistance(a.position.x, a.position.y, b.position.x, b.position.y)
+        const distance = getDistance(a.position, b.position)
         return distance;
     }
 
@@ -22,7 +22,7 @@ class Edge {
 
         // if (distance > restDistance) {
         // Hooke's law: F = -k(x - x0)
-        const forceVectorLength = -springConstant * (springLength - distance);
+        const forceVectorLength = -stiffness * (springLength - distance);
         const eachForce = forceVectorLength / 2;
 
         {
@@ -58,7 +58,11 @@ class Edge {
 
     render(ctx) {
         const { a, b } = this.vertices;
-        // console.log(`edge going from ${JSON.stringify(a.position)} to ${JSON.stringify(b.position)}`);
+
+        ctx.beginPath();
+        ctx.moveTo(a.position.x, a.position.y);
+        ctx.lineTo(b.position.x, b.position.y);
+        ctx.stroke();
     }
 }
 

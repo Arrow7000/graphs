@@ -1,10 +1,10 @@
-const sqr = num => num * num
-const { sqrt } = Math;
+export const sqr = num => num * num
+export const { sqrt, random, floor } = Math;
 
 
-export function getDistance(aX, aY, bX, bY) {
-    const xDiff = sqr(bX - aX);
-    const yDiff = sqr(bY - aY);
+export function getDistance(a, b) {
+    const xDiff = sqr(b.x - a.x);
+    const yDiff = sqr(b.y - a.y);
     return sqrt(xDiff + yDiff);
 }
 
