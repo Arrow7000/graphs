@@ -1,5 +1,4 @@
-import { springLength, stiffness } from './config';
-import { getDistance, subtrVec, multiplyVec, divideVec } from './utils';
+import { getDistance } from './utils';
 
 
 class Edge {
@@ -15,46 +14,6 @@ class Edge {
         const distance = getDistance(a.position, b.position)
         return distance;
     }
-
-    update() {
-        const { a, b } = this.vertices;
-        const distance = this.getDistance();
-
-        // if (distance > restDistance) {
-        // Hooke's law: F = -k(x - x0)
-        const forceVectorLength = -stiffness * (springLength - distance);
-        const eachForce = forceVectorLength / 2;
-
-        {
-            const vecAtoB = subtrVec(b.position, a.position);
-            const directionFromAtoB = divideVec(vecAtoB, distance);
-            const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
-            a.applyForce(forceAtoB);
-        }
-
-        {
-            const vecBtoA = subtrVec(a.position, b.position);
-            const directionFromBtoA = divideVec(vecBtoA, distance);
-            const forceBtoA = multiplyVec(directionFromBtoA, eachForce);
-            b.applyForce(forceBtoA);
-        }
-
-
-        // } else {
-        //     /**
-        //      * @TODO
-        //      * - implement repulsive force (reverse Hooke's law?)
-        //      */
-        // }
-    }
-
-
-
-
-
-
-
-
 
     render(ctx) {
         const { a, b } = this.vertices;

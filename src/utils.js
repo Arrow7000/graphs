@@ -12,6 +12,32 @@ export function getVectorLen({ x, y }) {
     return sqrt(sqr(x) + sqr(y));
 }
 
+
+export function getAvgPosition(coords) {
+    const totalCoords = coords.reduce((totalCoord, thisCoord) => {
+        return {
+            x: totalCoord.x + thisCoord.x,
+            y: totalCoord.y + thisCoord.y
+        };
+    }, { x: 0, y: 0 });
+
+    const avgPosition = divideVec(totalCoords, coords.length);
+    return avgPosition;
+}
+
+export function normaliseVec(vector) {
+    const length = getVectorLen(vector);
+    const normalised = divideVec(vector, length);
+    return normalised;
+}
+
+export function vecFromTo(from, to) {
+    return subtrVec(to, from);
+}
+
+
+// arithmetic operations
+
 export function addVec(vecA, vecB) {
     const x = vecA.x + vecB.x;
     const y = vecA.y + vecB.y;

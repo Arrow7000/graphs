@@ -1,9 +1,10 @@
-import Vertex from './Vertex';
-import Edge from './Edge';
 import each from 'lodash/each';
 import range from 'lodash/range';
+import Vertex from './Vertex';
+import Edge from './Edge';
+import { applyCoulomb, applyGravity, applySpring, applyCenterMovement } from './forces';
 
-const { random, floor } = Math;
+const { random } = Math;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -31,7 +32,12 @@ const edges = range(4)
         const nodeB = nodes[bIndex];
         return new Edge(nodeA, nodeB);
     })
-    .concat([new Edge(nodes[1], nodes[4])]);
+    .concat([
+        new Edge(nodes[1], nodes[4]),
+        new Edge(nodes[6], nodes[4]),
+        new Edge(nodes[6], nodes[5]),
+        new Edge(nodes[1], nodes[3]),
+    ]);
 
 
 
@@ -46,10 +52,18 @@ function update() {
     ctx.clearRect(0, 0, width, height);
 
 
+    applyCoulomb(nodes);
+    // applyGravity(nodes, center);
+    applySpring(edges);
+    applyCenterMovement(nodes, center);
 
-    each([...nodes, ...edges], obj => {
-        obj.update(nodes, center);
-        obj.render(ctx);
+    each(nodes, node => {
+        node.update();
+        node.render(ctx);
+    });
+
+    each(edges, edge => {
+        edge.render(ctx);
     });
 
 
