@@ -23,7 +23,7 @@ const nodes = range(7)
         return new Vertex(x, y);
     });
 
-const edges = range(2)
+const edges = range(4)
     .map(num => {
         // const aIndex = floor(random() * nodes.length);
         // const bIndex = floor(random() * nodes.length);
@@ -33,8 +33,6 @@ const edges = range(2)
         const nodeB = nodes[bIndex];
         return new Edge(nodeA, nodeB);
     });
-
-console.log(edges);
 
 // const node1 = new Vertex(300, 300);
 // node1.applyForce({ x: 5, y: 0 })
@@ -54,6 +52,7 @@ console.log(edges);
 
 let lastUpdate = new Date();
 const { width, height } = canvas;
+const center = { x: width / 2, y: height / 2 };
 
 function update() {
     ctx.beginPath();
@@ -62,7 +61,7 @@ function update() {
 
 
     each([...nodes, ...edges], obj => {
-        obj.update(nodes);
+        obj.update(nodes, center);
         obj.render(ctx);
     });
 

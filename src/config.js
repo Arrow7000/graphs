@@ -6,4 +6,7 @@ export const damping = 0.04;
 
 // Coulomb repulsion
 export const coulombConst = 1;
-export const vertexCharge = 10;
+export const vertexCharge = 20;
+
+// Gravity
+export const G = 2;

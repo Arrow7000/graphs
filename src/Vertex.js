@@ -1,6 +1,6 @@
 import each from 'lodash/each';
-import { sqr, random, floor, getDistance, subtrVec, multiplyVec, divideVec } from './utils';
-import { damping, vertexMass, coulombConst, vertexCharge } from './config';
+import { sqr, random, floor, getVectorLen, getDistance, subtrVec, multiplyVec, divideVec } from './utils';
+import { damping, vertexMass, coulombConst, vertexCharge, G } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
@@ -22,7 +22,7 @@ class Vertex {
         };
     }
 
-    update(nodes) {
+    update(nodes, center) {
         // actual movement happens here
         // The rest is commentary
         this.velocity.x *= 1 - damping;
@@ -32,6 +32,7 @@ class Vertex {
         this.position.x += x;
         this.position.y += y;
 
+        // Coulomb force -- should really be extracted from here and made global
         each(nodes, node => {
             if (this.id !== node.id) {
                 const distance = getDistance(this.position, node.position);
@@ -41,12 +42,18 @@ class Vertex {
                 const vecToNode = subtrVec(this.position, node.position);
                 const normalisedDirection = divideVec(vecToNode, distance);
                 const vector = multiplyVec(normalisedDirection, force);
-                console.log(vector);
+
                 this.applyForce(vector);
             }
         });
 
-        // console.log(this.position);
+        // Gravity towards center of canvas
+        const vecToCenter = subtrVec(center, this.position);
+        const distance = getVectorLen(vecToCenter);
+        const direction = divideVec(vecToCenter, distance);
+        const force = G * sqr(vertexMass) / sqr(distance);
+        const vector = multiplyVec(direction, force);
+        this.applyForce(vector);
     }
 
     applyForce({ x, y }) {
