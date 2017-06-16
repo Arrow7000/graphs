@@ -9,4 +9,4 @@ export const coulombConst = 1;
 export const vertexCharge = 20;
 
 // Gravity
-export const G = 2;
+export const G = 2; // gravitational constants

@@ -25,26 +25,13 @@ const nodes = range(7)
 
 const edges = range(4)
     .map(num => {
-        // const aIndex = floor(random() * nodes.length);
-        // const bIndex = floor(random() * nodes.length);
         const aIndex = num;
         const bIndex = num + 1;
         const nodeA = nodes[aIndex];
         const nodeB = nodes[bIndex];
         return new Edge(nodeA, nodeB);
-    });
-
-// const node1 = new Vertex(300, 300);
-// node1.applyForce({ x: 5, y: 0 })
-// const node2 = new Vertex(600, 600);
-// const edge = new Edge(node1, node2);
-
-// const objects = [
-//     node1,
-//     node2,
-//     edge,
-// ];
-
+    })
+    .concat([new Edge(nodes[1], nodes[4])]);
 
 
 
