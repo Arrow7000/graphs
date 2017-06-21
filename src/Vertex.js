@@ -1,4 +1,4 @@
-import { random, floor, addVec, multiplyVec, divideVec } from './utils';
+import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
 import { damping, vertexMass, vertexRadius } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);

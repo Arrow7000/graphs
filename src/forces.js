@@ -1,5 +1,5 @@
 import each from 'lodash/each';
-import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition } from './utils';
+import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition } from './vectorMaths';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, centerForce, G } from './config';
 
 

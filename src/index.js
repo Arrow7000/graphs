@@ -2,7 +2,7 @@ import each from 'lodash/each';
 import range from 'lodash/range';
 import Vertex from './Vertex';
 import Edge from './Edge';
-import { applyCoulomb, applyGravity, applySpring, applyCenterMovement } from './forces';
+import { applyCoulomb, applySpring, applyCenterMovement } from './forces';
 
 const { random } = Math;
 

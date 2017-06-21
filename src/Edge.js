@@ -1,4 +1,4 @@
-import { getDistance } from './utils';
+import { getDistance } from './vectorMaths';
 
 
 class Edge {
