@@ -1,18 +1,20 @@
 import each from 'lodash/each';
 import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition } from './vectorMaths';
-import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, centerForce, G } from './config';
+import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, centerForce, G } from './config';
 
 
-
+function coulombForce(coulombConst, vertexCharge, distance) {
+    return coulombConst * (vertexCharge * vertexCharge) / sqr(distance / 2);
+}
 
 export function applyCoulomb(nodes) {
-    // Coulomb force
     each(nodes, thisNode => {
         each(nodes, otherNode => {
             if (thisNode.id !== otherNode.id) {
                 const distance = getDistance(thisNode.position, otherNode.position);
 
-                const force = coulombConst * (vertexCharge * vertexCharge) / sqr(distance / 2);
+                const distToUse = cappedElectro ? cap(distance, electroCapStrengthDistance, true) : distance;
+                const force = coulombForce(coulombConst, vertexCharge, distToUse);
 
                 const vecToNode = vecFromTo(otherNode.position, thisNode.position);
                 const normalisedDirection = normaliseVec(vecToNode);
@@ -26,7 +28,6 @@ export function applyCoulomb(nodes) {
 
 
 export function applyGravity(nodes, center) {
-    // Gravity towards center of canvas
     each(nodes, node => {
         const vecToCenter = vecFromTo(node.position, center);
         const distance = getVectorLen(vecToCenter);
@@ -38,29 +39,28 @@ export function applyGravity(nodes, center) {
 }
 
 
+// Hooke's law: F = -k(x - x0)
+function springForce(stiffness, springLength, distance) {
+    return -stiffness * (springLength - distance);
+}
+
 export function applySpring(edges) {
     each(edges, edge => {
         const { a, b } = edge.vertices;
         const distance = edge.getDistance();
 
-        // if (distance > restDistance) {
-        // Hooke's law: F = -k(x - x0)
-        const forceVectorLength = -stiffness * (springLength - distance);
+        const forceVectorLength = springForce(stiffness, springLength, distance);
         const eachForce = forceVectorLength / 2;
 
-        {
-            const vecAtoB = vecFromTo(a.position, b.position);
-            const directionFromAtoB = normaliseVec(vecAtoB);
-            const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
-            a.applyForce(forceAtoB);
-        }
 
-        {
-            const vecBtoA = vecFromTo(b.position, a.position);
-            const directionFromBtoA = normaliseVec(vecBtoA);
-            const forceBtoA = multiplyVec(directionFromBtoA, eachForce);
-            b.applyForce(forceBtoA);
-        }
+        const vecAtoB = vecFromTo(a.position, b.position);
+        const directionFromAtoB = normaliseVec(vecAtoB);
+        const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
+        a.applyForce(forceAtoB);
+
+        const forceBtoA = multiplyVec(forceAtoB, -1);
+        b.applyForce(forceBtoA);
+
     });
 }
 
@@ -74,4 +74,12 @@ export function applyCenterMovement(nodes, center) {
         const vector = multiplyVec(toCenter, centerForce);
         node.applyMovement(vector);
     });
+}
+
+
+function cap(num, limit, capMinimum) {
+    if (capMinimum) {
+        return num < limit ? limit : num;
+    }
+    return num > limit ? limit : num;
 }
