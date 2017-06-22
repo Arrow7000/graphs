@@ -1,3 +1,4 @@
+import P from './Point';
 import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
 import { damping, vertexMass, vertexRadius } from './config';
 
@@ -5,10 +6,17 @@ const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
 
 class Vertex {
-    constructor(x, y) {
+    constructor(xOrPoint, y = null) {
         this.id = uuid();
-        this.position = { x, y };
-        this.velocity = { x: 0, y: 0 };
+
+        let point;
+        if (y) {
+            point = new P(xOrPoint, y);
+        } else {
+            point = xOrPoint;
+        }
+        this.position = point;
+        this.velocity = new P(0, 0);
 
         this.mass = vertexMass;
     }
