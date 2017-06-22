@@ -1,3 +1,4 @@
+import P from './Point';
 import each from 'lodash/each';
 import range from 'lodash/range';
 import Vertex from './Vertex';
@@ -43,17 +44,14 @@ const edges = range(4)
 
 
 
-let lastUpdate = new Date();
 const { width, height } = canvas;
-const center = { x: width / 2, y: height / 2 };
+// const center = { x: width / 2, y: height / 2 };
+const center = new P(width / 2, height / 2);
 
-function update() {
-    ctx.beginPath();
-    ctx.clearRect(0, 0, width, height);
 
+Updater(ctx, () => {
 
     applyCoulomb(nodes);
-    // applyGravity(nodes, center);
     applySpring(edges);
     applyCenterMovement(nodes, center);
 
@@ -67,16 +65,27 @@ function update() {
     });
 
 
+});
 
 
-    const now = +new Date();
-    const msTillNextFrame = (lastUpdate + frame) - now;
-    const timeTillUpdate = msTillNextFrame > 0 ? msTillNextFrame : 0;
 
-    lastUpdate = now;
-    setTimeout(() => {
-        update();
-    }, timeTillUpdate);
+
+function Updater(ctx, func) {
+    let lastUpdate = new Date();
+
+    function update() {
+        ctx.beginPath();
+        ctx.clearRect(0, 0, width, height);
+
+        func();
+
+        const now = +new Date();
+        const msTillNextFrame = (lastUpdate + frame) - now;
+        const timeTillUpdate = msTillNextFrame > 0 ? msTillNextFrame : 0;
+
+        lastUpdate = now;
+        setTimeout(update, timeTillUpdate);
+    }
+
+    update()
 }
-
-update();
