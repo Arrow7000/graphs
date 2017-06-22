@@ -3,12 +3,13 @@ import each from 'lodash/each';
 import range from 'lodash/range';
 import Vertex from './Vertex';
 import Edge from './Edge';
-import { applyCoulomb, applySpring, applyCenterMovement } from './forces';
+import { applyElectrostatic, applySpring, applyCenterMovement } from './forces';
+import { constructQuadTree } from './utils';
 
 const { random } = Math;
 
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = (canvas as any).getContext('2d');
 const frame = 1000 / 60;
 
 
@@ -42,16 +43,29 @@ const edges = range(4)
 
 
 
+canvas.addEventListener("touchstart", handleStart, false);
+// canvas.addEventListener("touchend", handleEnd, false);
+// canvas.addEventListener("touchcancel", handleCancel, false);
+// canvas.addEventListener("touchmove", handleMove, false);
+
+function handleStart(event) {
+    event.preventDefault();
+    console.log(event);
+}
 
 
-const { width, height } = canvas;
+
+// const { width, height } = canvas;
+const width = +canvas.getAttribute('width');
+const height = +canvas.getAttribute('height');
 // const center = { x: width / 2, y: height / 2 };
 const center = new P(width / 2, height / 2);
 
 
+
 Updater(ctx, () => {
 
-    applyCoulomb(nodes);
+    applyElectrostatic(nodes, new P(width, height));
     applySpring(edges);
     applyCenterMovement(nodes, center);
 
@@ -71,7 +85,7 @@ Updater(ctx, () => {
 
 
 function Updater(ctx, func) {
-    let lastUpdate = new Date();
+    let lastUpdate = +new Date();
 
     function update() {
         ctx.beginPath();

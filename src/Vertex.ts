@@ -6,14 +6,23 @@ const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
 
 class Vertex {
-    constructor(xOrPoint, y = null) {
+
+    id: string;
+    position: P;
+    velocity: P;
+    mass: number;
+
+
+    constructor(xOrPoint: P);
+    constructor(xOrPoint: number, y: number);
+    constructor(xOrPoint: P | number, y?: number) {
         this.id = uuid();
 
-        let point;
+        let point: P;
         if (y) {
-            point = new P(xOrPoint, y);
+            point = new P(xOrPoint as number, y);
         } else {
-            point = xOrPoint;
+            point = xOrPoint as P;
         }
         this.position = point;
         this.velocity = new P(0, 0);
@@ -33,12 +42,16 @@ class Vertex {
 
     }
 
-    applyForce(vector) {
+    applyForce(vector: P) {
         this.velocity = addVec(this.velocity, divideVec(vector, this.mass));
     }
 
-    applyMovement(vector) {
+    applyMovement(vector: P) {
         this.position = addVec(this.position, vector);
+    }
+
+    drag(position: P) {
+        this.position = position;
     }
 
 

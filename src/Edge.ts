@@ -1,8 +1,14 @@
+import Vertex from './Vertex';
 import { getDistance } from './vectorMaths';
 
-
 class Edge {
-    constructor(vertexA, vertexB) {
+
+    vertices: {
+        a: Vertex,
+        b: Vertex
+    }
+
+    constructor(vertexA: Vertex, vertexB: Vertex) {
         this.vertices = {
             a: vertexA,
             b: vertexB,
