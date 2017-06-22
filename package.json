@@ -19,6 +19,7 @@
         "webpack-dev-server": "^2.4.5"
     },
     "dependencies": {
+        "babel-plugin-transform-object-rest-spread": "^6.23.0",
         "lodash": "^4.17.4"
     }
 }
