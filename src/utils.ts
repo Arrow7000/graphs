@@ -6,17 +6,18 @@ import P from './Point';
 import Vertex from './Vertex';
 
 
-interface QuadSubUnit {
+export interface QuadSubUnit {
     vertex: Vertex;
 }
 
 // export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
 export const directions = ['upLeft', 'downLeft', 'upRight', 'downRight'];
 
-interface QuadParentUnit {
-    totalMass: number;
+export interface QuadParentUnit extends _.Dictionary<any> {
+    totalCharge: number;
     vertices: Vertex[];
-    centerOfGravity: P;
+    centerOfCharge: P;
+    width: number;
 
     upLeft?: QuadUnit;
     downLeft?: QuadUnit;
@@ -24,10 +25,19 @@ interface QuadParentUnit {
     downRight?: QuadUnit;
 }
 
-type QuadUnit = QuadParentUnit | QuadSubUnit;
+export type QuadUnit = QuadParentUnit | QuadSubUnit;
+
+export function isQuadParent(quadUnit: any): quadUnit is QuadParentUnit {
+    return !!quadUnit.centerOfCharge;
+}
 
 export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P): QuadUnit {
     if (nodes && nodes.length !== undefined && nodes.length > 1) {
+
+        const squareVec = vecFromTo(origin, endCorner);
+        const width = squareVec.x;
+        // const { x, y } = squareVec;
+        // const area = x * y;
 
         const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
 
@@ -36,20 +46,21 @@ export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P): Qua
             return constructQuadTree(vertices, newOrigin, newEndCorner);
         });
 
-        const { totalMass, totalPosition } = nodes.reduce((result, node) => {
+        const { totalCharge, totalPosition } = nodes.reduce((result, node) => {
             return {
-                totalMass: result.totalMass + node.mass,
+                totalCharge: result.totalCharge + node.charge,
                 totalPosition: addVec(result.totalPosition, node.position)
             };
-        }, { totalMass: 0, totalPosition: new P(0, 0) });
+        }, { totalCharge: 0, totalPosition: new P(0, 0) });
 
-        const centerOfGravity = divideVec(totalPosition, totalMass);
+        const centerOfCharge = divideVec(totalPosition, totalCharge);
 
         return {
             ...quads,
-            totalMass,
-            centerOfGravity,
-            vertices: nodes
+            totalCharge,
+            centerOfCharge,
+            vertices: nodes,
+            width
         };
 
     } else {
