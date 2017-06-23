@@ -37,6 +37,17 @@ export function vecFromTo(from: P, to: P): P {
     return subtrVec(to, from);
 }
 
+export function setVecToLen(vector: P, length: number) {
+    const normalised = normaliseVec(vector);
+    return multiplyVec(normalised, length);
+}
+
+export function combineVectors(vectors: P[]): P {
+    return vectors.reduce((result, vector) => {
+        return addVec(result, vector);
+    }, new P(0, 0));
+}
+
 
 // arithmetic operations
 
