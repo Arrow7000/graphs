@@ -8,8 +8,8 @@ import { constructQuadTree } from './utils';
 
 const { random } = Math;
 
-const canvas = document.getElementById('canvas');
-const ctx = (canvas as any).getContext('2d');
+const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 const frame = 1000 / 60;
 
 
@@ -48,7 +48,7 @@ canvas.addEventListener("touchstart", handleStart, false);
 // canvas.addEventListener("touchcancel", handleCancel, false);
 // canvas.addEventListener("touchmove", handleMove, false);
 
-function handleStart(event) {
+function handleStart(event: TouchEvent) {
     event.preventDefault();
     console.log(event);
 }
@@ -82,9 +82,13 @@ Updater(ctx, () => {
 });
 
 
+// setTimeout(function () {
+//     console.log(constructQuadTree(nodes, new P(0, 0), new P(width, height)));
+// }, 1000);
 
 
-function Updater(ctx, func) {
+
+function Updater(ctx: CanvasRenderingContext2D, func: () => void) {
     let lastUpdate = +new Date();
 
     function update() {
