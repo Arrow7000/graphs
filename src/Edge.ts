@@ -21,7 +21,7 @@ class Edge {
         return distance;
     }
 
-    render(ctx) {
+    render(ctx: CanvasRenderingContext2D) {
         const { a, b } = this.vertices;
 
         ctx.beginPath();

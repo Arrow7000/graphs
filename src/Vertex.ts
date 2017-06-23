@@ -1,6 +1,6 @@
 import P from './Point';
 import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
-import { damping, vertexMass, vertexRadius } from './config';
+import { damping, vertexMass, vertexRadius, vertexCharge } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
@@ -11,6 +11,7 @@ class Vertex {
     position: P;
     velocity: P;
     mass: number;
+    charge: number;
 
 
     constructor(xOrPoint: P);
@@ -28,6 +29,7 @@ class Vertex {
         this.velocity = new P(0, 0);
 
         this.mass = vertexMass;
+        this.charge = vertexCharge;
     }
 
     getMomentum() {
@@ -57,7 +59,7 @@ class Vertex {
 
     // drag
 
-    render(ctx) {
+    render(ctx: CanvasRenderingContext2D) {
         // draws directly onto canvas
         const { x, y } = this.position;
 
