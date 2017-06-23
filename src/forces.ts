@@ -1,14 +1,28 @@
 import each from 'lodash/each';
+import map from 'lodash/map';
+import filter from 'lodash/filter';
 import Vertex from './Vertex';
 import P from './Point';
 import Edge from './Edge';
-import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition } from './vectorMaths';
-import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, minDistForBarnesHutApprox, centerForce, G } from './config';
-import { constructQuadTree, directions } from './utils';
+import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './vectorMaths';
+import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G } from './config';
+import {
+    constructQuadTree, directions, QuadUnit, QuadParentUnit, QuadSubUnit, isQuadParent
+} from './utils';
 
 
-function coulombForce(coulombConst: number, vertexCharge: number, distance: number): number {
+function coulombStrength(coulombConst: number, vertexCharge: number, distance: number): number {
     return coulombConst * (vertexCharge * vertexCharge) / sqr(distance / 2);
+}
+
+function getCoulombForce(node: Vertex, position: P, charge: number) {
+    const vecToTarget = vecFromTo(node.position, position);
+    const distance = getVectorLen(vecToTarget);
+    // const distToUse = cappedElectro ? cap(distance, electroCapStrengthDistance, true) : distance;
+    const strength = coulombStrength(coulombConst, charge, distance);
+    const force = setVecToLen(vecToTarget, strength);
+
+    return force;
 }
 
 export function applyElectrostatic(nodes: Vertex[], end: P) {
@@ -30,14 +44,49 @@ export function applyElectrostatic(nodes: Vertex[], end: P) {
     // });
 
 
-    const quadTree = constructQuadTree(nodes, new P(0, 0), end);
 
-    for (const key in quadTree) {
-        if (directions.includes(key)) {
-            throw new Error('barnes-hut stuff goes here')
+    each(nodes, thisNode => {
+        const tree = constructQuadTree(nodes, new P(0, 0), end);
+
+        each(nodes, node => {
+            const totalForce = traverser(node, tree);
+
+            node.applyForce(totalForce);
+        });
+    });
+
+
+
+
+    function traverser(node: Vertex, tree: QuadUnit): P {
+        if (isQuadParent(tree)) {
+            const distance = getVectorLen(vecFromTo(node.position, tree.centerOfCharge));
+            const sByD = tree.width / distance;
+            if (sByD < theta) { // use Barnes-Hut approximation
+                const { centerOfCharge, totalCharge } = tree;
+                const force = getCoulombForce(node, centerOfCharge, totalCharge);
+                return force
+            } else { // we need to go deeper
+
+                const subtrees = filter(tree, (value, key) => {
+                    return directions.includes(key);
+                });
+
+                const vectors = map(subtrees, subtree => {
+                    return traverser(node, subtree);
+                });
+
+                const combinedVectors = combineVectors(vectors);
+                return combinedVectors;
+            }
+        } else { // base case
+            const { position, charge } = tree.vertex;
+            const force = getCoulombForce(node, position, charge);
+            return force
         }
     }
 }
+
 
 
 export function applyGravity(nodes: Vertex[], center: P) {
