@@ -14,7 +14,8 @@ export const vertexCharge = 100;
 export const cappedElectro = true;
 export const electroCapStrengthDistance = vertexRadius / 2;
 
-export const minDistForBarnesHutApprox = vertexRadius * 5;
+// export const minDistForBarnesHutApprox = vertexRadius * 5;
+export const theta = 0.9;
 
 // centering 'force'
 export const centerForce = 1; // max of 1, min of 0
