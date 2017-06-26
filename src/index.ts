@@ -14,18 +14,17 @@ const frame = 1000 / 60;
 
 
 
-const side = 1000;
-const window = 250;
+const side = 5000;
+const window = 300;
 
-
-// const nodes = range(floor(random() * 15))
-const nodes = range(7)
+const nodes = range(13)
     .map(() => {
         const x = (side - window) / 2 + random() * window;
         const y = (side - window) / 2 + random() * window;
         return new Vertex(x, y);
     });
 
+// const edges = [new Edge(nodes[0], nodes[1])];
 const edges = range(4)
     .map(num => {
         const aIndex = num;
@@ -39,6 +38,17 @@ const edges = range(4)
         new Edge(nodes[6], nodes[4]),
         new Edge(nodes[6], nodes[5]),
         new Edge(nodes[1], nodes[3]),
+        new Edge(nodes[1], nodes[7]),
+        new Edge(nodes[1], nodes[10]),
+        new Edge(nodes[10], nodes[3]),
+        new Edge(nodes[7], nodes[8]),
+        new Edge(nodes[12], nodes[3]),
+        new Edge(nodes[12], nodes[11]),
+        new Edge(nodes[12], nodes[9]),
+        new Edge(nodes[11], nodes[9]),
+        new Edge(nodes[10], nodes[8]),
+        new Edge(nodes[12], nodes[9]),
+        new Edge(nodes[12], nodes[1]),
     ]);
 
 
@@ -47,7 +57,7 @@ canvas.addEventListener("touchstart", handleStart, false);
 // canvas.addEventListener("touchend", handleEnd, false);
 // canvas.addEventListener("touchcancel", handleCancel, false);
 // canvas.addEventListener("touchmove", handleMove, false);
-
+// 
 function handleStart(event: TouchEvent) {
     event.preventDefault();
     console.log(event);
@@ -62,10 +72,9 @@ const height = +canvas.getAttribute('height');
 const center = new P(width / 2, height / 2);
 
 
-
 Updater(ctx, () => {
 
-    applyElectrostatic(nodes, new P(width, height));
+    applyElectrostatic(ctx, nodes);
     applySpring(edges);
     applyCenterMovement(nodes, center);
 
@@ -102,6 +111,7 @@ function Updater(ctx: CanvasRenderingContext2D, func: () => void) {
         const timeTillUpdate = msTillNextFrame > 0 ? msTillNextFrame : 0;
 
         lastUpdate = now;
+
         setTimeout(update, timeTillUpdate);
     }
 
