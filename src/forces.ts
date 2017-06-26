@@ -1,12 +1,13 @@
 import each from 'lodash/each';
 import map from 'lodash/map';
+import range from 'lodash/range';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
 import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './Point';
 import Edge from './Edge';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G, minDistance } from './config';
 import {
-    constructQuadTree, directions, QuadNode, InternalNode, ExternalNode, isInternalNode
+    constructQuadTree, directions, QuadNode, InternalNode, ExternalNode, isInternalNode, Square
 } from './utils';
 
 const { min, max } = Math;
@@ -29,11 +30,11 @@ function getCoulombForce(vertex: Vertex, position: P, charge1: number, charge2: 
     return force;
 }
 
-export function applyElectrostatic(vertices: Vertex[]) {
+export function applyElectrostatic(ctx: CanvasRenderingContext2D, vertices: Vertex[]) {
 
     const { origin, end } = getLargestSquare(vertices);
 
-    const tree = constructQuadTree(vertices, origin, end);
+    const tree = constructQuadTree(ctx, vertices, origin, end);
 
     each(vertices, vertex => {
         const totalForce = getTreeForce(vertex, tree);
@@ -56,27 +57,39 @@ export function applyElectrostatic(vertices: Vertex[]) {
 
 
 
-function getTreeForce(vertex: Vertex, tree: QuadNode): P {
+function getTreeForce(vertex: Vertex, tree: QuadNode, debugCount?: number): P {
+
+    const indent = range(debugCount).map(() => '  ').join();
+    // const log = str => console.log(indent + str);
+    const log = str => null;
+
+
+
     if (!isInternalNode(tree)) { // if is external
+        log('is external node, returning force from vertex');
         const { id, position, charge } = tree.vertex;
         if (id === vertex.id) {
+            log('(is self, so no force)');
             return new P(0, 0); // no force if is the same node
         }
         const force = getCoulombForce(vertex, position, vertex.charge, charge);
         if (isNaN(force.x)) { debugger; }
         return force
     } else {
+        log('is internal node, so comparing s/d to theta');
         const distance = vertex.position.vecTo(tree.centerOfCharge).getLength();
         const sByD = tree.width / distance;
-
+        // log(sByD);
         if (sByD < theta) {
+            log('too far, comparing with tree root');
             const { centerOfCharge, totalCharge } = tree;
             const force = getCoulombForce(vertex, centerOfCharge, vertex.charge, totalCharge);
             if (isNaN(force.x)) { debugger; }
             return force
         } else {
+            log('too close: recursing through children');
             const subtrees = filter(tree, (value, key) => directions.includes(key));
-            const vectors = map(subtrees, subtree => getTreeForce(vertex, subtree));
+            const vectors = map(subtrees, subtree => getTreeForce(vertex, subtree, debugCount ? debugCount + 1 : 1));
             const combinedVectors = combineVectors(vectors);
             if (isNaN(combinedVectors.x)) { debugger; }
             return combinedVectors;
@@ -150,11 +163,6 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
     });
 }
 
-
-interface Square {
-    origin: P;
-    end: P;
-}
 
 function getLargestSquare(vertices: Vertex[]): Square {
     const origin: P = vertices.reduce((NWmost, vertex) => {

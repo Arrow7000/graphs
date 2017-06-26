@@ -1,7 +1,7 @@
 import each from 'lodash/each';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
-import { addVec, subtrVec, vecFromTo, multiplyVec, divideVec, getAvgPosition } from './Point';
+import { addVec, subtrVec, vecFromTo, multiplyVec, divideVec, getAvgPosition, sqrt } from './Point';
 import P from './Point';
 import Vertex from './Vertex';
 
@@ -12,13 +12,6 @@ export interface ExternalNode {
 
 // export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
 export const directions = ['NW', 'SW', 'NE', 'SE'];
-
-// declare enum Quads {
-//     NW,
-//     NE,
-//     SE,
-//     SW,
-// }
 
 export interface InternalNode extends _.Dictionary<any> {
     totalCharge: number;
@@ -38,7 +31,12 @@ export function isInternalNode(quadUnit: QuadNode): quadUnit is InternalNode {
     return !!quadUnit['centerOfCharge'];
 }
 
-export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, count?: number): QuadNode {
+export interface Square {
+    origin: P;
+    end: P;
+}
+
+export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[], origin: P, endCorner: P, countInfntLp?: number): QuadNode {
 
     if (nodes && nodes.length !== undefined && nodes.length > 1) {
         const squareVec = vecFromTo(origin, endCorner);
@@ -47,24 +45,45 @@ export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, coun
         const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
 
         const quads = mapValues(grouped, (vertices, quarterName) => {
-            const [newOrigin, newEndCorner] = getNewSquare(quarterName, origin, endCorner);
-            if (isNaN(vertices[0].position.x)) { debugger; }
+            const newSquare = getNewSquare(quarterName, origin, endCorner);
+            const newOrigin = newSquare.origin;
+            const newEndCorner = newSquare.end;
 
-            if (count > 100) {
-                console.log(grouped);
-                debugger;
-            }
-            return constructQuadTree(vertices, newOrigin, newEndCorner, count ? count + 1 : 1);
+            console.log(newOrigin.vecTo(newEndCorner).getLength());
+
+            if (countInfntLp > 100) { debugger; }
+
+            return constructQuadTree(ctx, vertices, newOrigin, newEndCorner, countInfntLp ? countInfntLp + 1 : 1);
         });
+
 
         const { totalCharge, totalPosition } = nodes.reduce((result, node) => {
             return {
                 totalCharge: result.totalCharge + node.charge,
-                totalPosition: addVec(result.totalPosition, node.position)
+                totalPosition: result.totalPosition.add(node.position.multiply(node.charge))
             };
         }, { totalCharge: 0, totalPosition: new P(0, 0) });
 
-        const centerOfCharge = divideVec(totalPosition, totalCharge);
+        const centerOfCharge = totalPosition.divide(totalCharge);
+        // console.log(centerOfCharge);
+
+
+        // DRAWING SQUARES
+
+        ctx.beginPath();
+        ctx.lineWidth = 4 / countInfntLp;
+        ctx.rect(origin.x, origin.y, endCorner.x, endCorner.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        const radius = sqrt(totalCharge / Math.PI) * 1.5;
+        ctx.arc(centerOfCharge.x, centerOfCharge.y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.fillStyle = 'black';
+
+        // END OF DRAWING SQUARES
+
 
         return {
             ...quads,
@@ -112,40 +131,40 @@ function isInSquare(point: P, origin: P, end: P): boolean {
 }
 
 // returns [origin, endCorner] coordinates, depending on the quad
-function getNewSquare(quad: string, origin: P, end: P): [P, P] {
+function getNewSquare(quad: string, origin: P, end: P): Square {
     const centerPoint = origin.add(end.subtract(origin).divide(2));
     switch (quad) {
         case 'NW':
             // origin   = origin
             // end      = origin + ((end - origin) / 2)
-            return [
+            return {
                 origin,
-                centerPoint
-            ];
+                end: centerPoint
+            };
 
         case 'SW':
             // origin   = x: origin.x, y: origin.y + ((end.y - origin.y) / 2)
             // end      = x: origin.x + ((end.x - origin.x) / 2) ,y: end.y
-            return [
-                new P(origin.x, origin.y + ((end.y - origin.y) / 2)),
-                new P(origin.x + ((end.x - origin.x) / 2), end.y)
-            ];
+            return {
+                origin: new P(origin.x, origin.y + ((end.y - origin.y) / 2)),
+                end: new P(origin.x + ((end.x - origin.x) / 2), end.y)
+            };
 
         case 'NE':
             // origin   = x: origin.x + ((end.x - origin.x) / 2), y: origin.y
             // end      = x: end.x, y: origin.y + ((end.y - origin.y) / 2)
-            return [
-                new P(origin.x + ((end.x - origin.x) / 2), origin.y),
-                new P(end.x, origin.y + ((end.y - origin.y) / 2))
-            ];
+            return {
+                origin: new P(origin.x + ((end.x - origin.x) / 2), origin.y),
+                end: new P(end.x, origin.y + ((end.y - origin.y) / 2))
+            };
 
         case 'SE':
             // origin   = origin + ((end - origin) / 2)
             // end      = end
-            return [
-                centerPoint,
+            return {
+                origin: centerPoint,
                 end
-            ];
+            };
 
         default:
             throw new Error('No such position exists');
