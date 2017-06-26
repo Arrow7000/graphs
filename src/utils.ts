@@ -45,11 +45,7 @@ export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[]
         const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
 
         const quads = mapValues(grouped, (vertices, quarterName) => {
-            const newSquare = getNewSquare(quarterName, origin, endCorner);
-            const newOrigin = newSquare.origin;
-            const newEndCorner = newSquare.end;
-
-            console.log(newOrigin.vecTo(newEndCorner).getLength());
+            const { origin: newOrigin, end: newEndCorner } = getNewSquare(quarterName, origin, endCorner);
 
             if (countInfntLp > 100) { debugger; }
 
@@ -72,7 +68,7 @@ export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[]
 
         ctx.beginPath();
         ctx.lineWidth = 4 / countInfntLp;
-        ctx.rect(origin.x, origin.y, endCorner.x, endCorner.y);
+        ctx.rect(origin.x, origin.y, endCorner.x - origin.x, endCorner.y - origin.y);
         ctx.stroke();
 
         ctx.beginPath();
