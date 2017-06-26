@@ -36,7 +36,7 @@ export interface Square {
     end: P;
 }
 
-export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[], origin: P, endCorner: P, countInfntLp?: number): QuadNode {
+export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, ctx?: CanvasRenderingContext2D, depth?: number): QuadNode {
 
     if (nodes && nodes.length !== undefined && nodes.length > 1) {
         const squareVec = vecFromTo(origin, endCorner);
@@ -47,9 +47,7 @@ export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[]
         const quads = mapValues(grouped, (vertices, quarterName) => {
             const { origin: newOrigin, end: newEndCorner } = getNewSquare(quarterName, origin, endCorner);
 
-            if (countInfntLp > 100) { debugger; }
-
-            return constructQuadTree(ctx, vertices, newOrigin, newEndCorner, countInfntLp ? countInfntLp + 1 : 1);
+            return constructQuadTree(vertices, newOrigin, newEndCorner, ctx, depth ? depth + 1 : 1);
         });
 
 
@@ -67,7 +65,7 @@ export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[]
         // DRAWING SQUARES
 
         ctx.beginPath();
-        ctx.lineWidth = 4 / countInfntLp;
+        ctx.lineWidth = 4 / depth;
         ctx.rect(origin.x, origin.y, endCorner.x - origin.x, endCorner.y - origin.y);
         ctx.stroke();
 
@@ -90,6 +88,14 @@ export function constructQuadTree(ctx: CanvasRenderingContext2D, nodes: Vertex[]
         };
 
     } else {
+
+
+        ctx.beginPath();
+        ctx.lineWidth = 4 / depth;
+        ctx.rect(origin.x, origin.y, endCorner.x - origin.x, endCorner.y - origin.y);
+        ctx.stroke();
+
+
         return { vertex: nodes[0] };
     }
 }
