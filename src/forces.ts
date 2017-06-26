@@ -2,91 +2,82 @@ import each from 'lodash/each';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
-import P from './Point';
+import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './Point';
 import Edge from './Edge';
-import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './vectorMaths';
-import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G } from './config';
+// import { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './vectorMaths';
+import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G, minDistance } from './config';
 import {
     constructQuadTree, directions, QuadUnit, QuadParentUnit, QuadSubUnit, isQuadParent
 } from './utils';
 
 
 function coulombStrength(coulombConst: number, vertexCharge: number, distance: number): number {
-    return coulombConst * (vertexCharge * vertexCharge) / sqr(distance / 2);
+    // console.log({ coulombConst, vertexCharge, distance });
+    const strength = coulombConst * (vertexCharge * vertexCharge) / sqr(distance / 2);
+    // console.log({ strength });
+    return strength;
 }
 
 function getCoulombForce(node: Vertex, position: P, charge: number) {
-    const vecToTarget = vecFromTo(node.position, position);
-    const distance = getVectorLen(vecToTarget);
-    // const distToUse = cappedElectro ? cap(distance, electroCapStrengthDistance, true) : distance;
+    // debugger;
+    const vecToTarget = node.position.vecTo(position);
+    // const distance = cap(vecToTarget.getLength(), minDistance, true);
+    const distance = vecToTarget.getLength();
+    // console.log(distance);
+
+    if (distance < 0 || distance === Infinity) { debugger; }
+
     const strength = coulombStrength(coulombConst, charge, distance);
-    const force = setVecToLen(vecToTarget, strength);
+    // console.log({ strength });
+    const force = vecToTarget.toLen(strength);
 
     return force;
 }
 
 export function applyElectrostatic(nodes: Vertex[], end: P) {
-    // each(nodes, thisNode => {
-    //     each(nodes, otherNode => {
-    //         if (thisNode.id !== otherNode.id) {
-    //             const distance = getDistance(thisNode.position, otherNode.position);
+    // console.log('START RUN');
 
-    //             const distToUse = cappedElectro ? cap(distance, electroCapStrengthDistance, true) : distance;
-    //             const force = coulombForce(coulombConst, vertexCharge, distToUse);
+    each(nodes, node => {
+        const tree = constructQuadTree(node, nodes, new P(0, 0), end);
+        // console.log('TREE CONSTRUCTED');
+        const totalForce = traverser(node, tree);
 
-    //             const vecToNode = vecFromTo(otherNode.position, thisNode.position);
-    //             const normalisedDirection = normaliseVec(vecToNode);
-    //             const vector = multiplyVec(normalisedDirection, force);
-
-    //             thisNode.applyForce(vector);
-    //         }
-    //     });
-    // });
-
-
-
-    each(nodes, thisNode => {
-        const tree = constructQuadTree(nodes, new P(0, 0), end);
-
-        each(nodes, node => {
-            const totalForce = traverser(node, tree);
-
-            node.applyForce(totalForce);
-        });
+        node.applyForce(totalForce);
     });
-
-
-
-
-    function traverser(node: Vertex, tree: QuadUnit): P {
-        if (isQuadParent(tree)) {
-            const distance = getVectorLen(vecFromTo(node.position, tree.centerOfCharge));
-            const sByD = tree.width / distance;
-            if (sByD < theta) { // use Barnes-Hut approximation
-                const { centerOfCharge, totalCharge } = tree;
-                const force = getCoulombForce(node, centerOfCharge, totalCharge);
-                return force
-            } else { // we need to go deeper
-
-                const subtrees = filter(tree, (value, key) => {
-                    return directions.includes(key);
-                });
-
-                const vectors = map(subtrees, subtree => {
-                    return traverser(node, subtree);
-                });
-
-                const combinedVectors = combineVectors(vectors);
-                return combinedVectors;
-            }
-        } else { // base case
-            const { position, charge } = tree.vertex;
-            const force = getCoulombForce(node, position, charge);
-            return force
-        }
-    }
 }
 
+function traverser(node: Vertex, tree: QuadUnit): P {
+    // debugger;
+    if (isQuadParent(tree)) {
+        // const distance = cap(getVectorLen(vecFromTo(node.position, tree.centerOfCharge)), minDistance, true);
+        const distance = getVectorLen(vecFromTo(node.position, tree.centerOfCharge));
+        // console.log({ distance });
+        const sByD = tree.width / distance;
+        if (sByD < theta) { // use Barnes-Hut approximation
+            console.log('use barnes-hut');
+            const { centerOfCharge, totalCharge } = tree;
+            const force = getCoulombForce(node, centerOfCharge, totalCharge);
+            if (isNaN(force.x)) { debugger; }
+            return force
+        } else { // we need to go deeper
+            console.log('go deeper');
+
+            const subtrees = filter(tree, (value, key) => directions.includes(key));
+
+            const vectors = map(subtrees, subtree => traverser(node, subtree));
+
+            const combinedVectors = combineVectors(vectors);
+            if (isNaN(combinedVectors.x)) { debugger; }
+            return combinedVectors;
+        }
+    } else { // base case
+        console.log('base case');
+        const { position, charge } = tree.vertex;
+        const force = getCoulombForce(node, position, charge);
+        if (isNaN(force.x)) { debugger; }
+        return force
+    }
+}
 
 
 export function applyGravity(nodes: Vertex[], center: P) {

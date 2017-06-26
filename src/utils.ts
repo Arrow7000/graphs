@@ -11,7 +11,7 @@ export interface QuadSubUnit {
 }
 
 // export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
-export const directions = ['upLeft', 'downLeft', 'upRight', 'downRight'];
+export const directions = ['NW', 'SW', 'NE', 'SE'];
 
 export interface QuadParentUnit extends _.Dictionary<any> {
     totalCharge: number;
@@ -19,10 +19,10 @@ export interface QuadParentUnit extends _.Dictionary<any> {
     centerOfCharge: P;
     width: number;
 
-    upLeft?: QuadUnit;
-    downLeft?: QuadUnit;
-    upRight?: QuadUnit;
-    downRight?: QuadUnit;
+    NW?: QuadUnit;
+    SW?: QuadUnit;
+    NE?: QuadUnit;
+    SE?: QuadUnit;
 }
 
 export type QuadUnit = QuadParentUnit | QuadSubUnit;
@@ -76,9 +76,9 @@ function groupQuad(node: Vertex, origin: P, endCorner: P) {
     const centerX = origin.x + (endCorner.x - origin.x) / 2;
     const centerY = origin.y + (endCorner.y - origin.y) / 2;
     if (node.position.x < centerX) {
-        return (node.position.y < centerY) ? 'upLeft' : 'downLeft'
+        return (node.position.y < centerY) ? 'NW' : 'SW'
     } else {
-        return (node.position.y < centerY) ? 'upRight' : 'downRight'
+        return (node.position.y < centerY) ? 'NE' : 'SE'
     }
 }
 
