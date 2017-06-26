@@ -171,7 +171,7 @@ function getLargestSquare(vertices: Vertex[]): Square {
             min(NWmost.x, x),
             min(NWmost.y, y)
         );
-    }, new P(0, 0));
+    }, vertices[0].position.subtract(new P(10, 10)));
 
     const end: P = vertices.reduce((SEmost, vertex) => {
         const { x, y } = vertex.position;
@@ -179,7 +179,7 @@ function getLargestSquare(vertices: Vertex[]): Square {
             max(SEmost.x, x),
             max(SEmost.y, y)
         );
-    }, new P(0, 0));
+    }, vertices[0].position.add(new P(10, 10)));
 
     return { origin, end };
 }
