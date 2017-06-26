@@ -15,7 +15,7 @@ export const cappedElectro = true;
 export const electroCapStrengthDistance = vertexRadius / 2;
 
 // export const minDistForBarnesHutApprox = vertexRadius * 5;
-export const theta = 0.9;
+export const theta = 1;
 
 // centering 'force'
 export const centerForce = 1; // max of 1, min of 0
@@ -23,3 +23,4 @@ export const centerForce = 1; // max of 1, min of 0
 // Gravity
 export const G = 2; // gravitational constants
 
+export const minDistance = 0.1;

@@ -1,7 +1,7 @@
 import each from 'lodash/each';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
-import { addVec, subtrVec, vecFromTo, multiplyVec, divideVec, getAvgPosition } from './vectorMaths';
+import { addVec, subtrVec, vecFromTo, multiplyVec, divideVec, getAvgPosition } from './Point';
 import P from './Point';
 import Vertex from './Vertex';
 
@@ -27,26 +27,28 @@ export interface QuadParentUnit extends _.Dictionary<any> {
 
 export type QuadUnit = QuadParentUnit | QuadSubUnit;
 
-export function isQuadParent(quadUnit: any): quadUnit is QuadParentUnit {
-    return !!quadUnit.centerOfCharge;
+export function isQuadParent(quadUnit: QuadUnit): quadUnit is QuadParentUnit {
+    return !!quadUnit['centerOfCharge'];
 }
 
-export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P): QuadUnit {
-    if (nodes && nodes.length !== undefined && nodes.length > 1) {
+export function constructQuadTree(nodeToExclude: Vertex, nodes: Vertex[], origin: P, endCorner: P): QuadUnit {
+    const nodesWithoutThis = nodes.filter(node => node.id !== nodeToExclude.id);
 
+    if (nodesWithoutThis && nodesWithoutThis.length !== undefined && nodesWithoutThis.length > 1) {
+        // console.log('NODES EXIST AND HAS MORE THAN 1', nodes);
         const squareVec = vecFromTo(origin, endCorner);
         const width = squareVec.x;
         // const { x, y } = squareVec;
         // const area = x * y;
 
-        const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
+        const grouped = groupBy(nodesWithoutThis, node => groupQuad(node, origin, endCorner));
 
         const quads = mapValues(grouped, (vertices, quarterName) => {
             const [newOrigin, newEndCorner] = getNewSquare(quarterName, origin, endCorner);
-            return constructQuadTree(vertices, newOrigin, newEndCorner);
+            return constructQuadTree(nodeToExclude, vertices, newOrigin, newEndCorner);
         });
 
-        const { totalCharge, totalPosition } = nodes.reduce((result, node) => {
+        const { totalCharge, totalPosition } = nodesWithoutThis.reduce((result, node) => {
             return {
                 totalCharge: result.totalCharge + node.charge,
                 totalPosition: addVec(result.totalPosition, node.position)
@@ -59,12 +61,13 @@ export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P): Qua
             ...quads,
             totalCharge,
             centerOfCharge,
-            vertices: nodes,
+            vertices: nodesWithoutThis,
             width
         };
 
     } else {
-        return { vertex: nodes[0] };
+        // console.log('LESS THAN 1 NODE');
+        return { vertex: nodesWithoutThis[0] };
     }
 }
 
