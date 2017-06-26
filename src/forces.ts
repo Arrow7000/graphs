@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import range from 'lodash/range';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
-import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './Point';
+import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors, limitVec } from './Point';
 import Edge from './Edge';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G, minDistance } from './config';
 import {
@@ -20,12 +20,12 @@ function coulombStrength(coulombConst: number, charge1: number, charge2: number,
 
 function getCoulombForce(vertex: Vertex, position: P, charge1: number, charge2: number): P {
     const vecToTarget = vertex.position.vecTo(position);
-    const distance = vecToTarget.getLength();
+    const distance = vecToTarget.length();
 
     if (distance <= 0 || distance === Infinity) { debugger; }
 
     const strength = coulombStrength(coulombConst, charge1, charge2, distance);
-    const force = vecToTarget.toLen(strength);
+    const force = vecToTarget.toLen(-strength);
 
     return force;
 }
@@ -41,6 +41,23 @@ export function applyElectrostatic(ctx: CanvasRenderingContext2D, vertices: Vert
 
         vertex.applyForce(totalForce);
     });
+
+
+
+
+    // each(vertices, thisVertex => {
+    //     each(vertices, otherVertex => {
+    //         if (thisVertex.id !== otherVertex.id) {
+
+    //             const toOther = thisVertex.position.vecTo(otherVertex.position);
+    //             const fullForce = getCoulombForce(thisVertex, otherVertex.position, thisVertex.charge, otherVertex.charge);
+    //             const thisForce = limitVec(fullForce.divide(2), 10);
+
+    //             thisVertex.applyForce(thisForce);
+    //         }
+    //     });
+    // });
+
 }
 
 
@@ -77,7 +94,7 @@ function getTreeForce(vertex: Vertex, tree: QuadNode, debugCount?: number): P {
         return force
     } else {
         log('is internal node, so comparing s/d to theta');
-        const distance = vertex.position.vecTo(tree.centerOfCharge).getLength();
+        const distance = vertex.position.vecTo(tree.centerOfCharge).length();
         const sByD = tree.width / distance;
         // log(sByD);
         if (sByD < theta) {

@@ -47,7 +47,6 @@ class Vertex {
     }
 
     applyForce(vector: P) {
-        // console.log({ vector });
         this.velocity = this.velocity.add(vector.divide(this.mass));
     }
 

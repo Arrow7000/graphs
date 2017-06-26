@@ -3,7 +3,7 @@ import P from './P';
 
 class Point extends P {
 
-    getLength() { return getVectorLen(this); }
+    length() { return getVectorLen(this); }
 
     getDistance(p: Point) { return getDistance(this, p); }
 
@@ -88,7 +88,7 @@ export function getAvgPosition(coords: Point[]): Point {
 
 export function normaliseVec(vector: Point): Point {
     // const length = getVectorLen(vector);
-    const length = vector.getLength();
+    const length = vector.length();
     if (length === 0) {
         // return new Point(0, 0);
         throw new Error('cannot normalise vector of length 0');
@@ -104,6 +104,13 @@ export function vecFromTo(from: Point, to: Point): Point {
 export function setVecToLen(vector: Point, length: number) {
     const normalised = normaliseVec(vector);
     return multiplyVec(normalised, length);
+}
+
+export function limitVec(vector: Point, maxLength: number) {
+    if (vector.length() > maxLength) {
+        return vector.toLen(maxLength);
+    }
+    return vector;
 }
 
 export function combineVectors(vectors: Point[]): Point {
