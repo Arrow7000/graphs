@@ -6,49 +6,58 @@ import P from './Point';
 import Vertex from './Vertex';
 
 
-export interface QuadSubUnit {
+export interface ExternalNode {
     vertex: Vertex;
 }
 
 // export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
 export const directions = ['NW', 'SW', 'NE', 'SE'];
 
-export interface QuadParentUnit extends _.Dictionary<any> {
+// declare enum Quads {
+//     NW,
+//     NE,
+//     SE,
+//     SW,
+// }
+
+export interface InternalNode extends _.Dictionary<any> {
     totalCharge: number;
     vertices: Vertex[];
     centerOfCharge: P;
     width: number;
 
-    NW?: QuadUnit;
-    SW?: QuadUnit;
-    NE?: QuadUnit;
-    SE?: QuadUnit;
+    NW?: QuadNode;
+    SW?: QuadNode;
+    NE?: QuadNode;
+    SE?: QuadNode;
 }
 
-export type QuadUnit = QuadParentUnit | QuadSubUnit;
+export type QuadNode = InternalNode | ExternalNode;
 
-export function isQuadParent(quadUnit: QuadUnit): quadUnit is QuadParentUnit {
+export function isInternalNode(quadUnit: QuadNode): quadUnit is InternalNode {
     return !!quadUnit['centerOfCharge'];
 }
 
-export function constructQuadTree(nodeToExclude: Vertex, nodes: Vertex[], origin: P, endCorner: P): QuadUnit {
-    const nodesWithoutThis = nodes.filter(node => node.id !== nodeToExclude.id);
+export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, count?: number): QuadNode {
 
-    if (nodesWithoutThis && nodesWithoutThis.length !== undefined && nodesWithoutThis.length > 1) {
-        // console.log('NODES EXIST AND HAS MORE THAN 1', nodes);
+    if (nodes && nodes.length !== undefined && nodes.length > 1) {
         const squareVec = vecFromTo(origin, endCorner);
         const width = squareVec.x;
-        // const { x, y } = squareVec;
-        // const area = x * y;
 
-        const grouped = groupBy(nodesWithoutThis, node => groupQuad(node, origin, endCorner));
+        const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
 
         const quads = mapValues(grouped, (vertices, quarterName) => {
             const [newOrigin, newEndCorner] = getNewSquare(quarterName, origin, endCorner);
-            return constructQuadTree(nodeToExclude, vertices, newOrigin, newEndCorner);
+            if (isNaN(vertices[0].position.x)) { debugger; }
+
+            if (count > 100) {
+                console.log(grouped);
+                debugger;
+            }
+            return constructQuadTree(vertices, newOrigin, newEndCorner, count ? count + 1 : 1);
         });
 
-        const { totalCharge, totalPosition } = nodesWithoutThis.reduce((result, node) => {
+        const { totalCharge, totalPosition } = nodes.reduce((result, node) => {
             return {
                 totalCharge: result.totalCharge + node.charge,
                 totalPosition: addVec(result.totalPosition, node.position)
@@ -61,15 +70,25 @@ export function constructQuadTree(nodeToExclude: Vertex, nodes: Vertex[], origin
             ...quads,
             totalCharge,
             centerOfCharge,
-            vertices: nodesWithoutThis,
+            vertices: nodes,
             width
         };
 
     } else {
-        // console.log('LESS THAN 1 NODE');
-        return { vertex: nodesWithoutThis[0] };
+        return { vertex: nodes[0] };
     }
 }
+
+function newQuadParent(): InternalNode {
+    return {
+        totalCharge: 0,
+        vertices: [],
+        centerOfCharge: new P(0, 0),
+        width: 0
+    }
+}
+
+
 
 
 function groupQuad(node: Vertex, origin: P, endCorner: P) {
@@ -82,18 +101,29 @@ function groupQuad(node: Vertex, origin: P, endCorner: P) {
     }
 }
 
+function isInSquare(point: P, origin: P, end: P): boolean {
+    const originSquare = [origin, end].map(vec => vec.subtract(origin));
+    const originPoint = point.subtract(origin);
+
+    const xInSquare = (originPoint.x >= originSquare[0].x && originPoint.x <= originSquare[1].x) || (originPoint.x >= originSquare[1].x && originPoint.x <= originSquare[0].x);
+    const yInSquare = (originPoint.y >= originSquare[0].y && originPoint.y <= originSquare[1].y) || (originPoint.y >= originSquare[1].y && originPoint.y <= originSquare[0].y);
+
+    return xInSquare && yInSquare;
+}
+
 // returns [origin, endCorner] coordinates, depending on the quad
 function getNewSquare(quad: string, origin: P, end: P): [P, P] {
+    const centerPoint = origin.add(end.subtract(origin).divide(2));
     switch (quad) {
-        case 'upLeft':
+        case 'NW':
             // origin   = origin
             // end      = origin + ((end - origin) / 2)
             return [
                 origin,
-                addVec(origin, divideVec(subtrVec(end, origin), 2))
+                centerPoint
             ];
 
-        case 'downLeft':
+        case 'SW':
             // origin   = x: origin.x, y: origin.y + ((end.y - origin.y) / 2)
             // end      = x: origin.x + ((end.x - origin.x) / 2) ,y: end.y
             return [
@@ -101,7 +131,7 @@ function getNewSquare(quad: string, origin: P, end: P): [P, P] {
                 new P(origin.x + ((end.x - origin.x) / 2), end.y)
             ];
 
-        case 'upRight':
+        case 'NE':
             // origin   = x: origin.x + ((end.x - origin.x) / 2), y: origin.y
             // end      = x: end.x, y: origin.y + ((end.y - origin.y) / 2)
             return [
@@ -109,11 +139,11 @@ function getNewSquare(quad: string, origin: P, end: P): [P, P] {
                 new P(end.x, origin.y + ((end.y - origin.y) / 2))
             ];
 
-        case 'downRight':
+        case 'SE':
             // origin   = origin + ((end - origin) / 2)
             // end      = end
             return [
-                addVec(origin, divideVec(subtrVec(end, origin), 2)),
+                centerPoint,
                 end
             ];
 
@@ -131,3 +161,5 @@ function getNewSquare(quad: string, origin: P, end: P): [P, P] {
 //         this.upLeft;
 //     }
 // }
+
+
