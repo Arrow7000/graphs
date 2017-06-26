@@ -1,5 +1,5 @@
 import Vertex from './Vertex';
-import { getDistance } from './vectorMaths';
+import { getDistance } from './Point';
 
 class Edge {
 
