@@ -17,39 +17,50 @@ const frame = 1000 / 60;
 const side = 5000;
 const window = 300;
 
-const nodes = range(13)
-    .map(() => {
-        const x = (side - window) / 2 + random() * window;
-        const y = (side - window) / 2 + random() * window;
-        return new Vertex(x, y);
-    });
+import * as network from './network';
 
-// const edges = [new Edge(nodes[0], nodes[1])];
-const edges = range(4)
-    .map(num => {
-        const aIndex = num;
-        const bIndex = num + 1;
-        const nodeA = nodes[aIndex];
-        const nodeB = nodes[bIndex];
-        return new Edge(nodeA, nodeB);
-    })
-    .concat([
-        new Edge(nodes[1], nodes[4]),
-        new Edge(nodes[6], nodes[4]),
-        new Edge(nodes[6], nodes[5]),
-        new Edge(nodes[1], nodes[3]),
-        new Edge(nodes[1], nodes[7]),
-        new Edge(nodes[1], nodes[10]),
-        new Edge(nodes[10], nodes[3]),
-        new Edge(nodes[7], nodes[8]),
-        new Edge(nodes[12], nodes[3]),
-        new Edge(nodes[12], nodes[11]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[11], nodes[9]),
-        new Edge(nodes[10], nodes[8]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[12], nodes[1]),
-    ]);
+// const nodes = range(13)
+//     .map(() => {
+//         const x = (side - window) / 2 + random() * window;
+//         const y = (side - window) / 2 + random() * window;
+//         return new Vertex(x, y);
+//     });
+
+// const edges = range(4)
+//     .map(num => {
+//         const aIndex = num;
+//         const bIndex = num + 1;
+//         const nodeA = nodes[aIndex];
+//         const nodeB = nodes[bIndex];
+//         return new Edge(nodeA, nodeB);
+//     })
+//     .concat([
+//         new Edge(nodes[1], nodes[4]),
+//         new Edge(nodes[6], nodes[4]),
+//         new Edge(nodes[6], nodes[5]),
+//         new Edge(nodes[1], nodes[3]),
+//         new Edge(nodes[1], nodes[7]),
+//         new Edge(nodes[1], nodes[10]),
+//         new Edge(nodes[10], nodes[3]),
+//         new Edge(nodes[7], nodes[8]),
+//         new Edge(nodes[12], nodes[3]),
+//         new Edge(nodes[12], nodes[11]),
+//         new Edge(nodes[12], nodes[9]),
+//         new Edge(nodes[11], nodes[9]),
+//         new Edge(nodes[10], nodes[8]),
+//         new Edge(nodes[12], nodes[9]),
+//         new Edge(nodes[12], nodes[1]),
+//     ]);
+
+const nodes = network.nodes.map(() => {
+    const x = (side - window) / 2 + random() * window;
+    const y = (side - window) / 2 + random() * window;
+    return new Vertex(x, y);
+});
+
+const edges = network.edges.map(([from, to]) => {
+    return new Edge(nodes[from], nodes[to]);
+})
 
 
 
@@ -74,7 +85,7 @@ const center = new P(width / 2, height / 2);
 
 Updater(ctx, () => {
 
-    applyElectrostatic(ctx, nodes);
+    applyElectrostatic(nodes, ctx);
     applySpring(edges);
     applyCenterMovement(nodes, center);
 
