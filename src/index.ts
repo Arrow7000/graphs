@@ -12,6 +12,10 @@ const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const frame = 1000 / 60;
 
+/**
+ * @TODO:
+ * - Let simulation run for a few hundred ticks so that network can stabilise before being rendered to the user
+ */
 
 
 const side = 1500;
