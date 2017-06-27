@@ -30,34 +30,14 @@ function getCoulombForce(vertex: Vertex, position: P, charge1: number, charge2: 
     return force;
 }
 
-export function applyElectrostatic(ctx: CanvasRenderingContext2D, vertices: Vertex[]) {
-
-    const { origin, end } = getLargestSquare(vertices);
-
-    const tree = constructQuadTree(vertices, origin, end, ctx);
+export function applyElectrostatic(vertices: Vertex[], ctx?: CanvasRenderingContext2D) {
+    const square = getLargestSquare(vertices);
+    const tree = constructQuadTree(vertices, square, ctx);
 
     each(vertices, vertex => {
         const totalForce = getTreeForce(vertex, tree);
-
         vertex.applyForce(totalForce);
     });
-
-
-
-
-    // each(vertices, thisVertex => {
-    //     each(vertices, otherVertex => {
-    //         if (thisVertex.id !== otherVertex.id) {
-
-    //             const toOther = thisVertex.position.vecTo(otherVertex.position);
-    //             const fullForce = getCoulombForce(thisVertex, otherVertex.position, thisVertex.charge, otherVertex.charge);
-    //             const thisForce = limitVec(fullForce.divide(2), 10);
-
-    //             thisVertex.applyForce(thisForce);
-    //         }
-    //     });
-    // });
-
 }
 
 
@@ -72,8 +52,7 @@ export function applyElectrostatic(ctx: CanvasRenderingContext2D, vertices: Vert
 
 
 
-function getTreeForce(vertex: Vertex, tree: QuadNode, debugCount?: number): P {
-
+function getTreeForce(vertex: Vertex, tree: QuadNode): P {
 
     if (!isInternalNode(tree)) { // if is external
         const { id, position, charge } = tree.vertex;
@@ -81,7 +60,6 @@ function getTreeForce(vertex: Vertex, tree: QuadNode, debugCount?: number): P {
             return new P(0, 0); // no force if is the same node
         }
         const force = getCoulombForce(vertex, position, vertex.charge, charge);
-        if (isNaN(force.x)) { debugger; }
         return force
     } else {
         const distance = vertex.position.vecTo(tree.centerOfCharge).length();
@@ -90,13 +68,11 @@ function getTreeForce(vertex: Vertex, tree: QuadNode, debugCount?: number): P {
         if (sByD < theta) {
             const { centerOfCharge, totalCharge } = tree;
             const force = getCoulombForce(vertex, centerOfCharge, vertex.charge, totalCharge);
-            if (isNaN(force.x)) { debugger; }
             return force
         } else {
             const subtrees = filter(tree, (value, key) => directions.includes(key));
-            const vectors = map(subtrees, subtree => getTreeForce(vertex, subtree, debugCount ? debugCount + 1 : 1));
+            const vectors = map(subtrees, subtree => getTreeForce(vertex, subtree));
             const combinedVectors = combineVectors(vectors);
-            if (isNaN(combinedVectors.x)) { debugger; }
             return combinedVectors;
         }
     }

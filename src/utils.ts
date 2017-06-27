@@ -36,18 +36,20 @@ export interface Square {
     end: P;
 }
 
-export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, ctx?: CanvasRenderingContext2D, depth?: number): QuadNode {
+export function constructQuadTree(nodes: Vertex[], square: Square, ctx?: CanvasRenderingContext2D, depth?: number): QuadNode {
+
+    const { origin, end } = square;
 
     if (nodes && nodes.length !== undefined && nodes.length > 1) {
-        const squareVec = vecFromTo(origin, endCorner);
+        const squareVec = vecFromTo(origin, end);
         const width = squareVec.x;
 
-        const grouped = groupBy(nodes, node => groupQuad(node, origin, endCorner));
+        const grouped = groupBy(nodes, node => groupQuad(node, square));
 
         const quads = mapValues(grouped, (vertices, quarterName) => {
-            const { origin: newOrigin, end: newEndCorner } = getNewSquare(quarterName, origin, endCorner);
+            const newSquare = getNewSquare(quarterName, square);
 
-            return constructQuadTree(vertices, newOrigin, newEndCorner, ctx, depth ? depth + 1 : 1);
+            return constructQuadTree(vertices, newSquare, ctx, depth ? depth + 1 : 1);
         });
 
 
@@ -63,18 +65,20 @@ export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, ctx?
 
 
         // DRAWING SQUARES
+        if (ctx) {
 
-        ctx.beginPath();
-        ctx.lineWidth = 4 / depth;
-        ctx.rect(origin.x, origin.y, endCorner.x - origin.x, endCorner.y - origin.y);
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.lineWidth = 4 / depth;
+            ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
+            ctx.stroke();
 
-        ctx.beginPath();
-        const radius = sqrt(totalCharge / Math.PI) * 1.5;
-        ctx.arc(centerOfCharge.x, centerOfCharge.y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = 'orange';
-        ctx.fill();
-        ctx.fillStyle = 'black';
+            ctx.beginPath();
+            const radius = sqrt(totalCharge / Math.PI) * 1.5;
+            ctx.arc(centerOfCharge.x, centerOfCharge.y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'orange';
+            ctx.fill();
+            ctx.fillStyle = 'black';
+        }
 
         // END OF DRAWING SQUARES
 
@@ -89,11 +93,12 @@ export function constructQuadTree(nodes: Vertex[], origin: P, endCorner: P, ctx?
 
     } else {
 
-
-        ctx.beginPath();
-        ctx.lineWidth = 4 / depth;
-        ctx.rect(origin.x, origin.y, endCorner.x - origin.x, endCorner.y - origin.y);
-        ctx.stroke();
+        if (ctx) {
+            ctx.beginPath();
+            ctx.lineWidth = 4 / depth;
+            ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
+            ctx.stroke();
+        }
 
 
         return { vertex: nodes[0] };
@@ -112,9 +117,9 @@ function newQuadParent(): InternalNode {
 
 
 
-function groupQuad(node: Vertex, origin: P, endCorner: P) {
-    const centerX = origin.x + (endCorner.x - origin.x) / 2;
-    const centerY = origin.y + (endCorner.y - origin.y) / 2;
+function groupQuad(node: Vertex, { origin, end }: Square) {
+    const centerX = origin.x + (end.x - origin.x) / 2;
+    const centerY = origin.y + (end.y - origin.y) / 2;
     if (node.position.x < centerX) {
         return (node.position.y < centerY) ? 'NW' : 'SW'
     } else {
@@ -133,7 +138,7 @@ function isInSquare(point: P, origin: P, end: P): boolean {
 }
 
 // returns [origin, endCorner] coordinates, depending on the quad
-function getNewSquare(quad: string, origin: P, end: P): Square {
+function getNewSquare(quad: string, { origin, end }: Square): Square {
     const centerPoint = origin.add(end.subtract(origin).divide(2));
     switch (quad) {
         case 'NW':
