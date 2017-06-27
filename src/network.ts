@@ -42,20 +42,24 @@ const { floor, random } = Math;
 //     [2, 19],
 //     [2, 19],
 // ];
-const randNode = () => floor(random() * nodes.length);
+const randNode = () => floor(random() * (nodes.length - 1));
+
 function isSame(a: EdgeSpec, b: EdgeSpec) {
-    const isSame = a[0] === b[0] && a[1] === b[1];
-    const isReverseSame = a[0] === b[1] && a[1] === b[0];
-    if (isSame || isReverseSame) {
+    const isSelfie = a[0] === a[1] || b[0] === b[1]; // connects to self
+    const isSame = a[0] === b[0] && a[1] === b[1]; // are identical
+    const isReverseSame = a[0] === b[1] && a[1] === b[0]; // are mirror image identical
+
+    if (isSelfie || isSame || isReverseSame) {
         return true;
     }
     return false;
 }
 
 
-export const nodes = range(50);
 
-export const edges = uniqWith([
+export const nodes = range(80);
+
+export const edges: EdgeSpec[] = uniqWith([
     ...range(nodes.length)
         .map(index => {
             return [index, randNode()]
