@@ -14,7 +14,7 @@ const frame = 1000 / 60;
 
 
 
-const side = 5000;
+const side = 1500;
 const window = 300;
 
 import * as network from './network';

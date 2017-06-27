@@ -28,7 +28,7 @@ export interface InternalNode extends _.Dictionary<any> {
 export type QuadNode = InternalNode | ExternalNode;
 
 export function isInternalNode(quadUnit: QuadNode): quadUnit is InternalNode {
-    return !!quadUnit['centerOfCharge'];
+    return !!(<InternalNode>quadUnit).centerOfCharge;
 }
 
 export interface Square {
