@@ -64,6 +64,6 @@ export const edges: EdgeSpec[] = uniqWith([
         .map(index => {
             return [index, randNode()]
         }),
-    ...range(40)
+    ...range(80)
         .map(() => [randNode(), randNode()])
 ], isSame);
