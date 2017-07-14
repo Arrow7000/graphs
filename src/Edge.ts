@@ -25,6 +25,7 @@ class Edge {
         const { a, b } = this.vertices;
 
         ctx.beginPath();
+        ctx.lineWidth = 2;
         ctx.moveTo(a.position.x, a.position.y);
         ctx.lineTo(b.position.x, b.position.y);
         ctx.stroke();

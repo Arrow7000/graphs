@@ -178,7 +178,13 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
     }
 }
 
-
+export function getAvgMomentum(nodes: Vertex[]): number {
+    return nodes
+        .map(vertex => vertex.getMomentum().length())
+        .reduce((total, momentum) => {
+            return total + momentum;
+        }, 0) / nodes.length;
+}
 
 
 

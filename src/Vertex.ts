@@ -12,6 +12,7 @@ class Vertex {
     velocity: P;
     mass: number;
     charge: number;
+    dragging: boolean;
 
 
     constructor(point: P);
@@ -30,6 +31,8 @@ class Vertex {
 
         this.mass = vertexMass;
         this.charge = vertexCharge;
+
+        this.dragging = false;
     }
 
     getMomentum() {
@@ -37,29 +40,30 @@ class Vertex {
     }
 
     update() {
-        // actual movement happens here
-        // The rest is commentary
-        this.velocity = multiplyVec(this.velocity, 1 - damping);
-        // console.log(this.velocity);
-        this.position = addVec(this.position, this.velocity);
-        // console.log(this.position);
-
+        if (!this.dragging) {
+            // actual movement happens here
+            // The rest is commentary
+            this.velocity = multiplyVec(this.velocity, 1 - damping);
+            // console.log(this.velocity);
+            this.position = addVec(this.position, this.velocity);
+            // console.log(this.position);
+        }
     }
 
     applyForce(vector: P) {
         this.velocity = this.velocity.add(vector.divide(this.mass));
     }
 
+    // applies movement directly without applying force - used mainly for centering
     applyMovement(vector: P) {
-        this.position = addVec(this.position, vector);
+        if (!this.dragging) {
+            this.position = this.position.add(vector);
+        }
     }
 
     drag(position: P) {
         this.position = position;
     }
-
-
-    // drag
 
     render(ctx: CanvasRenderingContext2D) {
         // draws directly onto canvas
