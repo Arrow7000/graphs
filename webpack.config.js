@@ -29,7 +29,7 @@ module.exports = {
         contentBase: path.join(__dirname, "public"),
         publicPath: "/dist/",
         compress: true,
-        port: 9000
+        port: process.env.PORT || 9000
     },
     resolve: { extensions: ['.js', '.ts'] }
 
