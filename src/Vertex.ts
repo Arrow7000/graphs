@@ -13,6 +13,7 @@ class Vertex {
     mass: number;
     charge: number;
     dragging: boolean;
+    text: string;
 
 
     constructor(x: number, y: number);
@@ -42,9 +43,9 @@ class Vertex {
         if (!this.dragging) {
             // actual movement happens here
             // The rest is commentary
-            this.velocity = multiplyVec(this.velocity, 1 - damping);
+            this.velocity = this.velocity.multiply(1 - damping);
             // console.log(this.velocity);
-            this.position = addVec(this.position, this.velocity);
+            this.position = this.position.add(this.velocity);
             // console.log(this.position);
         }
     }
@@ -66,6 +67,10 @@ class Vertex {
         this.position = position;
     }
 
+    setText(text: string) {
+        this.text = text;
+    }
+
     render(ctx: CanvasRenderingContext2D) {
         // draws directly onto canvas
         const { x, y } = this.position;
@@ -73,6 +78,11 @@ class Vertex {
         ctx.beginPath();
         ctx.arc(x, y, vertexRadius, 0, 2 * Math.PI);
         ctx.fill();
+
+        if (this.text) {
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.text, x + 10 + vertexRadius, y);
+        }
     }
 }
 

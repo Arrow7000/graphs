@@ -37,53 +37,50 @@ const maxAvgMomentumLen = 5;
 
 import * as network from './network';
 
-const nodes = range(13)
-    .map(() => {
-        const x = (side - window) / 2 + random() * window;
-        const y = (side - window) / 2 + random() * window;
-        return new Vertex(x, y);
-    });
+// const nodes = range(13)
+//     .map(() => {
+//         const x = (side - window) / 2 + random() * window;
+//         const y = (side - window) / 2 + random() * window;
+//         return new Vertex(x, y);
+//     });
 
-const edges = range(4)
-    .map(num => {
-        const aIndex = num;
-        const bIndex = num + 1;
-        const nodeA = nodes[aIndex];
-        const nodeB = nodes[bIndex];
-        return new Edge(nodeA, nodeB);
-    })
-    .concat([
-        new Edge(nodes[1], nodes[4]),
-        new Edge(nodes[6], nodes[4]),
-        new Edge(nodes[6], nodes[5]),
-        new Edge(nodes[1], nodes[3]),
-        new Edge(nodes[1], nodes[7]),
-        new Edge(nodes[1], nodes[10]),
-        new Edge(nodes[10], nodes[3]),
-        new Edge(nodes[7], nodes[8]),
-        new Edge(nodes[12], nodes[3]),
-        new Edge(nodes[12], nodes[11]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[11], nodes[9]),
-        new Edge(nodes[10], nodes[8]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[12], nodes[1]),
-    ]);
+// const edges = range(4)
+//     .map(num => {
+//         const aIndex = num;
+//         const bIndex = num + 1;
+//         const nodeA = nodes[aIndex];
+//         const nodeB = nodes[bIndex];
+//         return new Edge(nodeA, nodeB);
+//     })
+//     .concat([
+//         new Edge(nodes[1], nodes[4]),
+//         new Edge(nodes[6], nodes[4]),
+//         new Edge(nodes[6], nodes[5]),
+//         new Edge(nodes[1], nodes[3]),
+//         new Edge(nodes[1], nodes[7]),
+//         new Edge(nodes[1], nodes[10]),
+//         new Edge(nodes[10], nodes[3]),
+//         new Edge(nodes[7], nodes[8]),
+//         new Edge(nodes[12], nodes[3]),
+//         new Edge(nodes[12], nodes[11]),
+//         new Edge(nodes[12], nodes[9]),
+//         new Edge(nodes[11], nodes[9]),
+//         new Edge(nodes[10], nodes[8]),
+//         new Edge(nodes[12], nodes[9]),
+//         new Edge(nodes[12], nodes[1]),
+//     ]);
 
-// interface TouchHolder {
-//     [key: number]: Vertex;
-// }
-// const touches: TouchHolder = {};
 
-// const nodes = network.nodes.map(() => {
-//     const x = (side - window) / 2 + random() * window;
-//     const y = (side - window) / 2 + random() * window;
-//     return new Vertex(x, y);
-// });
 
-// const edges = network.edges.map(([from, to]) => {
-//     return new Edge(nodes[from], nodes[to]);
-// });
+const nodes = network.nodes.map(() => {
+    const x = (side - window) / 2 + random() * window;
+    const y = (side - window) / 2 + random() * window;
+    return new Vertex(x, y);
+});
+
+const edges = network.edges.map(([from, to]) => {
+    return new Edge(nodes[from], nodes[to]);
+});
 
 
 
@@ -105,6 +102,7 @@ const width = +canvas.getAttribute('width');
 const height = +canvas.getAttribute('height');
 const center = new P(width / 2, height / 2);
 
+const { round } = Math;
 
 function update() {
     applyElectrostatic(nodes);
@@ -112,6 +110,8 @@ function update() {
     applyCenterMovement(nodes, center);
 
     each(nodes, node => {
+        const { x, y } = node.position;
+        node.setText(`(${round(x)}, ${round(y)})`)
         node.update();
         node.render(ctx);
     });
