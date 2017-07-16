@@ -3,6 +3,24 @@ import P from './P';
 
 class Point extends P {
 
+    constructor(x: number, y: number);
+    constructor(point: P);
+    constructor();
+    constructor(xOrP?: P | number, yCoord?: number) {
+        let position: P;
+
+        if (yCoord !== undefined) {
+            position = new P(xOrP as number, yCoord);
+        } else if (xOrP !== undefined) {
+            position = xOrP as P;
+        } else {
+            position = new P(0, 0);
+        }
+        const { x, y } = position;
+        super(x, y);
+    }
+
+
     length() { return getVectorLen(this); }
 
     getDistance(p: Point) { return getDistance(this, p); }

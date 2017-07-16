@@ -15,19 +15,18 @@ class Vertex {
     dragging: boolean;
 
 
-    constructor(point: P);
     constructor(x: number, y: number);
-    constructor(xOrPoint: P | number, y?: number) {
+    constructor(point: P);
+    constructor();
+    constructor(xOrPoint?: P | number, yCoord?: number) {
         this.id = uuid();
 
-        let point: P;
-        if (y) {
-            point = new P(xOrPoint as number, y);
-        } else {
-            point = xOrPoint as P;
-        }
-        this.position = point;
-        this.velocity = new P(0, 0);
+        this.position = xOrPoint !== undefined ? (
+            yCoord !== undefined ?
+                new P(<number>xOrPoint, yCoord) : new P(<P>xOrPoint)
+        ) : new P();
+
+        this.velocity = new P();
 
         this.mass = vertexMass;
         this.charge = vertexCharge;
@@ -51,7 +50,9 @@ class Vertex {
     }
 
     applyForce(vector: P) {
-        this.velocity = this.velocity.add(vector.divide(this.mass));
+        if (!this.dragging) {
+            this.velocity = this.velocity.add(vector.divide(this.mass));
+        }
     }
 
     // applies movement directly without applying force - used mainly for centering
