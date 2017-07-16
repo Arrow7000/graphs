@@ -88,6 +88,7 @@ canvas.addEventListener("touchmove", touchMove, false);
 
 canvas.addEventListener("mousedown", mouseStart, false);
 canvas.addEventListener("mouseup", mouseEnd, false);
+canvas.addEventListener("mouseleave", mouseEnd, false);
 canvas.addEventListener("mousemove", mouseMove, false);
 
 
