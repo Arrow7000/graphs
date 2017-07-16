@@ -43,7 +43,10 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
 
     function handleEnd(event: TouchEvent) {
         const touch = event.changedTouches[0];
-        touches[touch.identifier].dragging = false;
+        const vertex = touches[touch.identifier];
+        if (vertex) {
+            vertex.dragging = false;
+        }
         delete touches[touch.identifier];
     }
 
