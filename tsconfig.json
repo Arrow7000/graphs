@@ -1,8 +1,13 @@
 {
     "compilerOptions": {
-        "target": "es2017",
+        "target": "es5",
         "allowSyntheticDefaultImports": true,
-        "module": "es2015"
+        "module": "es2015",
+        "lib": [
+            "es2015",
+            "es2016",
+            "dom"
+        ]
     },
     "include": [
         "./src/*"
