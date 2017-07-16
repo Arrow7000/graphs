@@ -7,9 +7,18 @@ interface TouchHolder {
     [key: number]: Vertex;
 }
 
+interface Click {
+    vertex: Vertex;
+    offset: P;
+}
+
 
 const touches: TouchHolder = {};
-let click: Vertex = null;
+
+let click: Click = {
+    vertex: null,
+    offset: new P()
+};
 
 function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
 
@@ -41,7 +50,6 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
     function touchMove(event: TouchEvent) {
         event.preventDefault();
 
-        // const touch = event.changedTouches[0];
         const { changedTouches } = event;
         for (let i = 0; i < changedTouches.length; i++) {
             const touch = changedTouches[i];
@@ -58,7 +66,6 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
     function touchEnd(event: TouchEvent) {
         event.preventDefault();
 
-        // const touch = event.changedTouches[0];
         const { changedTouches } = event;
         for (let i = 0; i < changedTouches.length; i++) {
             const touch = changedTouches[i];
@@ -79,42 +86,39 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
 
         const { x, y } = position
 
-        const clickedVertex = nodes.reduce((last, vertex) => {
-            if (vertex.position.getDistance(new P(x, y)) < vertexRadius) {
+        const vertex = nodes.reduce((last, vertex) => {
+            if (vertex.position.isWithinRadius(new P(x, y), vertexRadius)) {
                 return vertex;
             }
             return last;
         }, null);
 
-        if (clickedVertex) {
-            click = clickedVertex;
-            clickedVertex.dragging = true;
+        if (vertex) {
+            click.vertex = vertex;
+            click.offset = vertex.position.vecTo(position);
+            vertex.dragging = true;
         }
 
     }
 
     function mouseMove(event: MouseEvent) {
-        const vertex = click;
+        const { vertex, offset } = click;
         if (vertex) {
             event.preventDefault();
 
-            const position = getTouchPos(canvas, event);
-
-            const x = event.movementX;
-            const y = event.movementY;
-
-            vertex.drag(position);
+            const pos = getTouchPos(canvas, event);
+            vertex.drag(pos.subtract(offset));
         }
     }
 
     function mouseEnd(event: MouseEvent) {
         event.preventDefault();
 
-        const vertex = click;
+        const { vertex } = click;
         if (vertex) {
             vertex.dragging = false;
         }
-        click = null;
+        click.vertex = null;
     }
 
 
