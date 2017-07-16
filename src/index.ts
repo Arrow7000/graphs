@@ -79,12 +79,16 @@ const edges = range(4)
 
 
 
-const { handleStart, handleMove, handleEnd } = handlers(canvas, nodes);
+const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, nodes);
 
-canvas.addEventListener("touchstart", handleStart, false);
-canvas.addEventListener("touchend", handleEnd, false);
-canvas.addEventListener("touchcancel", handleEnd, false);
-canvas.addEventListener("touchmove", handleMove, false);
+canvas.addEventListener("touchstart", touchStart, false);
+canvas.addEventListener("touchend", touchEnd, false);
+canvas.addEventListener("touchcancel", touchEnd, false);
+canvas.addEventListener("touchmove", touchMove, false);
+
+canvas.addEventListener("mousedown", mouseStart, false);
+canvas.addEventListener("mouseup", mouseEnd, false);
+canvas.addEventListener("mousemove", mouseMove, false);
 
 
 
