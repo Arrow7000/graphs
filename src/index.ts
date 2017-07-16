@@ -17,9 +17,17 @@ const frame = 1000 / 60;
 
 /**
  * @TODO:
- * - Let simulation run for a few hundred ticks so that network can stabilise before being rendered to the user
+ * V - Let simulation run for a few hundred ticks so that network can stabilise before being rendered to the user
  */
 
+/**
+ * Roadmap
+ * - Make canvas resize to size of viewport
+ * - Optionally also zoom in or out depending on viewport size
+ * - Colour nodes and edges
+ * - Allow user to create new nodes
+ * - Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
+ */
 
 const side = 1500;
 const window = 300;
@@ -116,7 +124,6 @@ function update() {
 
 
 // Makes graph move around and lose some momentum before first render
-
 let avgMomentum = 0;
 let cycle = 0;
 
@@ -132,9 +139,3 @@ console.info('Cycled ' + cycle + ' times before render, in ' + (t1 - t0) + 'ms')
 
 
 Updater(width, height, frame, ctx, update);
-
-
-// setTimeout(function () {
-//     console.log(constructQuadTree(nodes, new P(0, 0), new P(width, height)));
-// }, 1000);
-
