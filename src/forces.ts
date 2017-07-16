@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import range from 'lodash/range';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
-import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors, limitVec } from './Point';
+import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './Point';
 import Edge from './Edge';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G } from './config';
 import {

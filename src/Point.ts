@@ -42,6 +42,8 @@ class Point extends P {
     divide(divisor: number) { return divideVec(this, divisor); }
 
     combine(vectors: Point[]) { return combineVectors([this, ...vectors]); }
+
+    isWithinRadius(point: Point, radius: number) { return this.getDistance(point) < radius; }
 }
 
 
@@ -55,9 +57,7 @@ export function addVec(vecA: Point, vecB: Point): Point {
 }
 
 export function subtrVec(vecA: Point, vecB: Point): Point {
-    const x = vecA.x - vecB.x;
-    const y = vecA.y - vecB.y;
-    return new Point(x, y);
+    return addVec(vecA, vecB.multiply(-1));
 }
 
 export function multiplyVec({ x, y }: Point, factor: number): Point {
@@ -67,11 +67,8 @@ export function multiplyVec({ x, y }: Point, factor: number): Point {
     );
 }
 
-export function divideVec({ x, y }: Point, divisor: number): Point {
-    return new Point(
-        x / divisor,
-        y / divisor
-    );
+export function divideVec(vec: Point, divisor: number): Point {
+    return vec.multiply(1 / divisor);
 }
 
 
@@ -81,10 +78,9 @@ export const sqr = num => num * num;
 export const { sqrt, random, floor } = Math;
 
 
+
 export function getDistance(a: Point, b: Point): number {
-    const xDiff = sqr(b.x - a.x);
-    const yDiff = sqr(b.y - a.y);
-    return sqrt(xDiff + yDiff);
+    return getVectorLen(vecFromTo(a, b));
 }
 
 export function getVectorLen({ x, y }: Point): number {
@@ -94,22 +90,17 @@ export function getVectorLen({ x, y }: Point): number {
 
 export function getAvgPosition(coords: Point[]): Point {
     const totalCoords = coords.reduce((totalCoord, thisCoord) => {
-        return new Point(
-            totalCoord.x + thisCoord.x,
-            totalCoord.y + thisCoord.y
-        );
-    }, new Point(0, 0));
+        return addVec(totalCoord, thisCoord);
+    }, new Point());
 
     const avgPosition = divideVec(totalCoords, coords.length);
     return avgPosition;
 }
 
 export function normaliseVec(vector: Point): Point {
-    // const length = getVectorLen(vector);
-    const length = vector.length();
+    const length = getVectorLen(vector);
     if (length === 0) {
-        // return new Point(0, 0);
-        throw new Error('cannot normalise vector of length 0');
+        throw new Error('Cannot normalise vector of length 0');
     }
     const normalised = divideVec(vector, length);
     return normalised;
@@ -124,9 +115,16 @@ export function setVecToLen(vector: Point, length: number) {
     return multiplyVec(normalised, length);
 }
 
-export function limitVec(vector: Point, maxLength: number) {
+export function maxVec(vector: Point, maxLength: number) {
     if (vector.length() > maxLength) {
-        return vector.toLen(maxLength);
+        return setVecToLen(vector, maxLength);
+    }
+    return vector;
+}
+
+export function minVec(vector: Point, minLength: number) {
+    if (vector.length() < minLength) {
+        return setVecToLen(vector, minLength);
     }
     return vector;
 }
@@ -134,7 +132,7 @@ export function limitVec(vector: Point, maxLength: number) {
 export function combineVectors(vectors: Point[]): Point {
     return vectors.reduce((result, vector) => {
         return addVec(result, vector);
-    }, new Point(0, 0));
+    }, new Point());
 }
 
 export default Point;
