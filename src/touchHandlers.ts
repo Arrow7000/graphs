@@ -16,10 +16,10 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
     function touchStart(event: TouchEvent) {
         event.preventDefault();
 
-        const touchList = event.changedTouches;
+        const { changedTouches } = event;
 
-        for (let i = 0; i < touchList.length; i++) {
-            const touch = touchList[i];
+        for (let i = 0; i < changedTouches.length; i++) {
+            const touch = changedTouches[i];
 
             const touchPoint = getTouchPos(canvas, touch);
 
@@ -41,11 +41,16 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
     function touchMove(event: TouchEvent) {
         event.preventDefault();
 
-        const touch = event.changedTouches[0];
-        const position = getTouchPos(canvas, touch);
-        const vertex = touches[touch.identifier];
-        if (vertex) {
-            vertex.drag(position);
+        // const touch = event.changedTouches[0];
+        const { changedTouches } = event;
+        for (let i = 0; i < changedTouches.length; i++) {
+            const touch = changedTouches[i];
+
+            const position = getTouchPos(canvas, touch);
+            const vertex = touches[touch.identifier];
+            if (vertex) {
+                vertex.drag(position);
+            }
         }
     }
 
@@ -53,12 +58,17 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[]) {
     function touchEnd(event: TouchEvent) {
         event.preventDefault();
 
-        const touch = event.changedTouches[0];
-        const vertex = touches[touch.identifier];
-        if (vertex) {
-            vertex.dragging = false;
+        // const touch = event.changedTouches[0];
+        const { changedTouches } = event;
+        for (let i = 0; i < changedTouches.length; i++) {
+            const touch = changedTouches[i];
+
+            const vertex = touches[touch.identifier];
+            if (vertex) {
+                vertex.dragging = false;
+            }
+            delete touches[touch.identifier];
         }
-        delete touches[touch.identifier];
     }
 
 
