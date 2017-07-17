@@ -22,3 +22,14 @@ export const centerForce = 1; // max of 1, min of 0
 
 // Gravity
 export const G = 2; // gravitational constants
+
+
+
+
+/**
+ * Styles
+ */
+
+export const backgroundColour = '#019851';
+export const nodeBodyColour = '#446CB3';
+export const edgeColour = '#E4F1FE';

@@ -1,6 +1,6 @@
 import P, { random, floor, addVec, multiplyVec } from './Point';
 // import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
-import { damping, vertexMass, vertexRadius, vertexCharge } from './config';
+import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
@@ -77,10 +77,16 @@ class Vertex {
 
         ctx.beginPath();
         ctx.arc(x, y, vertexRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = nodeBodyColour;
         ctx.fill();
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = edgeColour;
+        ctx.stroke();
 
         if (this.text) {
             ctx.textBaseline = 'middle';
+            ctx.fillStyle = edgeColour;
             ctx.fillText(this.text, x + 10 + vertexRadius, y);
         }
     }

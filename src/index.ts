@@ -5,7 +5,7 @@ import Vertex from './Vertex';
 import Edge from './Edge';
 import { applyElectrostatic, applySpring, applyCenterMovement } from './forces';
 import { constructQuadTree, getAvgMomentum } from './utils';
-import { vertexRadius } from './config';
+import { vertexRadius, backgroundColour } from './config';
 import { Updater } from './mainHelpers';
 import handlers from './touchHandlers';
 
@@ -22,11 +22,13 @@ const frame = 1000 / 60;
 
 /**
  * Roadmap
- * - Make canvas resize to size of viewport
- * - Optionally also zoom in or out depending on viewport size
+ * - Make canvas resize to size of viewport - maybe use requestAnimationFrame
+ * - Optionally also 'zoom' in or out virtually depending on viewport size
  * - Colour nodes and edges
  * - Allow user to create new nodes
  * - Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
+ * - Create import tool
+ * - create connectors to interface with import tool - e.g. import friends list from FB or Twitter followers network
  */
 
 const side = 1500;
@@ -105,9 +107,18 @@ const center = new P(width / 2, height / 2);
 const { round } = Math;
 
 function update() {
+    ctx.beginPath();
+    // ctx.fillStyle = 'black';
+    ctx.fillStyle = backgroundColour;
+    ctx.fillRect(0, 0, width, height);
+
     applyElectrostatic(nodes);
     applySpring(edges);
     applyCenterMovement(nodes, center);
+
+    each(edges, edge => {
+        edge.render(ctx);
+    });
 
     each(nodes, node => {
         const { x, y } = node.position;
@@ -116,9 +127,6 @@ function update() {
         node.render(ctx);
     });
 
-    each(edges, edge => {
-        edge.render(ctx);
-    });
 }
 
 
@@ -138,4 +146,4 @@ const t1 = performance.now();
 console.info('Cycled ' + cycle + ' times before render, in ' + (t1 - t0) + 'ms');
 
 
-Updater(width, height, frame, ctx, update);
+Updater(width, height, ctx, update);
