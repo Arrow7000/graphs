@@ -41,6 +41,8 @@ class Point extends P {
 
     divide(divisor: number) { return divideVec(this, divisor); }
 
+    rotate(degrees: number) { return rotate(this, degrees); }
+
     combine(vectors: Point[]) { return combineVectors([this, ...vectors]); }
 
     isWithinRadius(point: Point, radius: number) { return this.getDistance(point) < radius; }
@@ -68,15 +70,14 @@ export function multiplyVec({ x, y }: Point, factor: number): Point {
 }
 
 export function divideVec(vec: Point, divisor: number): Point {
-    return vec.multiply(1 / divisor);
+    return multiplyVec(vec, 1 / divisor);
 }
 
 
 
 
-export const sqr = num => num * num;
-export const { sqrt, random, floor } = Math;
-
+export const sqr = (num: number) => num * num;
+export const { sqrt, random, floor, sin, cos, tan, pow, PI } = Math;
 
 
 export function getDistance(a: Point, b: Point): number {
@@ -99,7 +100,7 @@ export function getAvgPosition(coords: Point[]): Point {
 
 export function normaliseVec(vector: Point): Point {
     const length = getVectorLen(vector);
-    if (length === 0) {
+    if (length <= 0) {
         throw new Error('Cannot normalise vector of length 0');
     }
     const normalised = divideVec(vector, length);
@@ -127,6 +128,19 @@ export function minVec(vector: Point, minLength: number) {
         return setVecToLen(vector, minLength);
     }
     return vector;
+}
+
+// get angle of vector
+
+
+export function rotate(vector: Point, degrees: number) {
+    const { x, y } = vector;
+    const radians = degrees * PI / 180;
+
+    return new Point(
+        x * cos(radians) - y * sin(radians),
+        x * sin(radians) - y * cos(radians),
+    )
 }
 
 export function combineVectors(vectors: Point[]): Point {
