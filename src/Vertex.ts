@@ -1,6 +1,6 @@
 import P, { random, floor, addVec, multiplyVec } from './Point';
 // import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
-import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour } from './config';
+import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour, lineWidth } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
@@ -10,6 +10,7 @@ class Vertex {
     id: string;
     position: P;
     velocity: P;
+    stress: number;
     mass: number;
     charge: number;
     dragging: boolean;
@@ -28,6 +29,7 @@ class Vertex {
         ) : new P();
 
         this.velocity = new P();
+        this.stress = 0;
 
         this.mass = vertexMass;
         this.charge = vertexCharge;
@@ -44,15 +46,15 @@ class Vertex {
             // actual movement happens here
             // The rest is commentary
             this.velocity = this.velocity.multiply(1 - damping);
-            // console.log(this.velocity);
             this.position = this.position.add(this.velocity);
-            // console.log(this.position);
         }
     }
 
     applyForce(vector: P) {
+        this.stress += vector.length();
         if (!this.dragging) {
-            this.velocity = this.velocity.add(vector.divide(this.mass));
+            const momentum = vector.divide(this.mass);
+            this.velocity = this.velocity.add(momentum);
         }
     }
 
@@ -80,7 +82,8 @@ class Vertex {
         ctx.fillStyle = nodeBodyColour;
         ctx.fill();
 
-        ctx.lineWidth = 5;
+        // ctx.lineWidth = 3 + .1 * this.stress;
+        ctx.lineWidth = lineWidth;
         ctx.strokeStyle = edgeColour;
         ctx.stroke();
 
@@ -89,6 +92,8 @@ class Vertex {
             ctx.fillStyle = edgeColour;
             ctx.fillText(this.text, x + 10 + vertexRadius, y);
         }
+
+        this.stress = 0;
     }
 }
 
