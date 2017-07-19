@@ -29,25 +29,53 @@ const frame = 1000 / 60;
  * - Create dashboard
  */
 
- /**
-  * Dashboard
-  * - Allow user to save current state
-  * - Allow user to select from multiple saved states
-  */
+/**
+ * Dashboard
+ * - Allow user to save current state
+ * - Allow user to select from multiple saved states
+ */
 
-const side = 1500;
-const window = 300;
 
-const maxPrerenderLoops = 200;
-const maxAvgMomentumLen = 5;
+// Closures
+let centerPoint = new P();
+let widthProp = 0;
+let heightProp = 0;
+
+// closure getters
+const getCenter = () => centerPoint;
+const getWidth = () => widthProp;
+const getHeight = () => heightProp;
+
+// reassign closures
+function canvasResize() {
+    console.log('resizing');
+
+    widthProp = canvas.offsetWidth;
+    heightProp = canvas.offsetHeight;
+    centerPoint = new P(widthProp / 2, heightProp / 2);
+
+    ctx.canvas.width = widthProp;
+    ctx.canvas.height = heightProp;
+}
+
+canvasResize();
+
+
+const side = Math.min(getWidth(), getHeight());
+const nodesWindow = 300;
+
+// const maxPrerenderLoops = 200;
+const maxPrerenderTime = 1000; // ms
+const maxAvgMomentumLen = 2.5;
 
 import * as network from './network';
 
 const nodes = range(13)
     .map(() => {
-        const x = (side - window) / 2 + random() * window;
-        const y = (side - window) / 2 + random() * window;
-        return new Vertex(x, y);
+        // const x = (side - window) / 2 + random() * window;
+        // const y = (side - window) / 2 + random() * window;
+
+        return new Vertex(getCenter().add((random() * nodesWindow) - nodesWindow / 2));
     });
 
 const edges = range(4)
@@ -102,23 +130,19 @@ canvas.addEventListener("mouseup", mouseEnd, false);
 canvas.addEventListener("mouseleave", mouseEnd, false);
 canvas.addEventListener("mousemove", mouseMove, false);
 
+window.addEventListener("resize", canvasResize, false);
 
-
-const width = +canvas.getAttribute('width');
-const height = +canvas.getAttribute('height');
-const center = new P(width / 2, height / 2);
 
 const { round } = Math;
 
 function update() {
     ctx.beginPath();
-    // ctx.fillStyle = 'black';
     ctx.fillStyle = backgroundColour;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, getWidth(), getHeight());
 
     applyElectrostatic(nodes);
     applySpring(edges);
-    applyCenterMovement(nodes, center);
+    applyCenterMovement(nodes, getCenter());
 
     each(edges, edge => {
         edge.render(ctx);
@@ -144,10 +168,14 @@ do {
     update();
     avgMomentum = getAvgMomentum(nodes);
     cycle++;
-} while (avgMomentum > maxAvgMomentumLen && cycle < maxPrerenderLoops)
+
+    if (performance.now() - t0 > maxPrerenderTime) {
+        break;
+    }
+} while (avgMomentum > maxAvgMomentumLen);
 const t1 = performance.now();
 
 console.info('Cycled ' + cycle + ' times before render, in ' + (t1 - t0) + 'ms');
 
 
-Updater(width, height, ctx, update);
+Updater(getWidth(), getHeight(), ctx, update);

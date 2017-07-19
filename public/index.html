@@ -7,21 +7,25 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <style>
+        html,
         body {
             margin: 0;
             padding: 0;
+            height: 100vh;
+            overflow: hidden;
         }
         
         #canvas {
             margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="canvas" width="1920" height="1080">
-        Please update to a modern browser that supports canvas.
-    </canvas>
+    <canvas id="canvas">Please update to a modern browser that supports canvas.</canvas>
     <script src="dist/bundle.js"></script>
 </body>
 
