@@ -13,7 +13,7 @@ class Edge {
         b: Vertex
     }
 
-    constructor(vertexA: Vertex, vertexB: Vertex, directed: boolean = false) {
+    constructor(vertexA: Vertex, vertexB: Vertex, directed: boolean = true) {
         this.vertices = {
             a: vertexA,
             b: vertexB,
@@ -23,7 +23,7 @@ class Edge {
 
     getDistance() {
         const { a, b } = this.vertices;
-        const distance = getDistance(a.position, b.position)
+        const distance = getDistance(a.position, b.position);
         return distance;
     }
 
