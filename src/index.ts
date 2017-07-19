@@ -20,12 +20,12 @@ const frame = 1000 / 60;
  * - Decide on format for storing networks
  * - Make canvas resize to size of viewport - maybe use requestAnimationFrame
  * - Optionally also 'zoom' in or out virtually depending on viewport size
- * - Colour nodes and edges
+ * V - Colour nodes and edges
  * - Allow user to create new nodes
  * - Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
  * - Create import tool
  * - create connectors to interface with import tool - e.g. import friends list from FB or Twitter followers network
- * - Create directed edges, with arrow to display direction
+ * V - Create directed edges, with arrow to display direction
  * - Create dashboard
  */
 
@@ -33,7 +33,6 @@ const frame = 1000 / 60;
   * Dashboard
   * - Allow user to save current state
   * - Allow user to select from multiple saved states
-  * - 
   */
 
 const side = 1500;
