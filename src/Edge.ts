@@ -1,6 +1,6 @@
 import Vertex from './Vertex';
 import P, { getDistance } from './Point';
-import { edgeColour, vertexRadius } from "./config";
+import { edgeColour, vertexRadius, lineWidth } from "./config";
 
 // const arrowHeadLen = 5;
 
@@ -38,8 +38,6 @@ class Edge {
         ctx.stroke();
 
 
-
-
         if (this.directed) {
             const { a, b } = this.vertices;
             const { x, y } = b.position;
@@ -62,7 +60,7 @@ class Edge {
             ctx.beginPath();
             ctx.moveTo(triangleTip.x, triangleTip.y);
 
-            ctx.lineWidth = 3;
+            ctx.lineWidth = lineWidth;
             ctx.fillStyle = edgeColour;
             ctx.lineTo(triangleA.x, triangleA.y);
             ctx.lineTo(triangleB.x, triangleB.y);

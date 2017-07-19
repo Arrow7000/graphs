@@ -33,3 +33,4 @@ export const G = 2; // gravitational constants
 export const backgroundColour = '#019851';
 export const nodeBodyColour = '#446CB3';
 export const edgeColour = '#E4F1FE';
+export const lineWidth = 3;
