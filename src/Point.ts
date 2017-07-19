@@ -33,7 +33,13 @@ class Point extends P {
 
     toLen(length: number) { return setVecToLen(this, length); }
 
-    add(p: Point) { return addVec(this, p); }
+    add(p: Point | number) {
+        if (p instanceof Point) {
+            return addVec(this, p);
+        } else {
+            return addLength(this, p);
+        }
+    }
 
     subtract(p: Point) { return subtrVec(this, p); }
 
@@ -41,7 +47,11 @@ class Point extends P {
 
     divide(divisor: number) { return divideVec(this, divisor); }
 
-    rotate(degrees: number) { return rotate(this, degrees); }
+    rotate(degrees: number, center: Point = new Point()) {
+        return rotateAround(this, degrees, center);
+    }
+
+    getAngle(from: Point = new Point(0, -1)) { return getAngle(this, from); }
 
     combine(vectors: Point[]) { return combineVectors([this, ...vectors]); }
 
@@ -57,6 +67,7 @@ export function addVec(vecA: Point, vecB: Point): Point {
     const y = vecA.y + vecB.y;
     return new Point(x, y);
 }
+
 
 export function subtrVec(vecA: Point, vecB: Point): Point {
     return addVec(vecA, vecB.multiply(-1));
@@ -79,6 +90,12 @@ export function divideVec(vec: Point, divisor: number): Point {
 export const sqr = (num: number) => num * num;
 export const { sqrt, random, floor, sin, cos, tan, pow, PI } = Math;
 
+
+export function addLength(vector: Point, length: number): Point {
+    const origLen = getVectorLen(vector);
+    const newVec = setVecToLen(vector, origLen + length);
+    return newVec;
+}
 
 export function getDistance(a: Point, b: Point): number {
     return getVectorLen(vecFromTo(a, b));
@@ -130,17 +147,29 @@ export function minVec(vector: Point, minLength: number) {
     return vector;
 }
 
-// get angle of vector
+export function getAngle(vector: Point, from: Point = new Point(1, 0)) {
+    const angle = Math.atan2(vector.y - from.y, vector.x - from.x);
+    const degrees = 180 * angle / PI;
+    return degrees % 360;
+}
 
+export function rotateAround(vector: Point, degrees: number, center: Point = new Point()) {
+    const fromCenter = vecFromTo(center, vector);
+    const rotated = rotate(fromCenter, degrees);
+    return addVec(rotated, center);
+}
 
-export function rotate(vector: Point, degrees: number) {
+function rotate(vector: Point, degrees: number) {
     const { x, y } = vector;
     const radians = degrees * PI / 180;
 
+    const ca = cos(radians);
+    const sa = sin(radians);
+
     return new Point(
-        x * cos(radians) - y * sin(radians),
-        x * sin(radians) - y * cos(radians),
-    )
+        (x * ca) - (y * sa),
+        (x * sa) + (y * ca)
+    );
 }
 
 export function combineVectors(vectors: Point[]): Point {
