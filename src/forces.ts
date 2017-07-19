@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import range from 'lodash/range';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
-import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors } from './Point';
+import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors, maxVec } from './Point';
 import Edge from './Edge';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G } from './config';
 import {
@@ -35,7 +35,7 @@ export function applyElectrostatic(vertices: Vertex[], ctx?: CanvasRenderingCont
     const tree = constructQuadTree(vertices, square, ctx);
 
     each(vertices, vertex => {
-        const totalForce = getTreeForce(vertex, tree);
+        const totalForce = maxVec(getTreeForce(vertex, tree), 100)
         vertex.applyForce(totalForce);
     });
 }
