@@ -147,7 +147,7 @@ export function minVec(vector: Point, minLength: number) {
     return vector;
 }
 
-export function getAngle(vector: Point, from: Point = new Point(1, 0)) {
+export function getAngle(vector: Point, from: Point = new Point(0, -1)) {
     const angle = Math.atan2(vector.y - from.y, vector.x - from.x);
     const degrees = 180 * angle / PI;
     return degrees % 360;
