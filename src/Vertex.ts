@@ -1,5 +1,4 @@
 import P, { random, floor, addVec, multiplyVec } from './Point';
-// import { random, floor, addVec, multiplyVec, divideVec } from './vectorMaths';
 import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour, lineWidth } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
