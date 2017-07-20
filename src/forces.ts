@@ -11,6 +11,7 @@ import {
 } from './utils';
 
 const { min, max } = Math;
+const fps = 60;
 
 function coulombStrength(coulombConst: number, charge1: number, charge2: number, distance: number): number {
     if (distance < 0.001) { debugger; }
@@ -135,13 +136,21 @@ export function applySpring(edges: Edge[]) {
 
 // false force, operates directly on position, not velocity
 export function applyCenterMovement(nodes: Vertex[], center: P) {
+    const timeToCenter = 2000;
     const avgPosition = getAvgPosition(nodes.map(node => node.position));
-    const toCenter = vecFromTo(avgPosition, center);
+    const toCenter = avgPosition.vecTo(center);
+    const moveNow = toCenter.length() < 1 ? toCenter : toCenter.divide(timeToCenter / fps);
 
-    each(nodes, node => {
-        const vector = multiplyVec(toCenter, centerForce);
-        node.applyMovement(vector);
-    });
+    const okToCenter = nodes
+        .filter(vertex => vertex.dragging)
+        .length < 1;
+
+    if (okToCenter) { // only center when not dragging any vertices
+        each(nodes, node => {
+            const vector = multiplyVec(moveNow, centerForce);
+            node.applyMovement(vector);
+        });
+    }
 }
 
 
