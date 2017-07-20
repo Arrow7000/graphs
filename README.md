@@ -2,7 +2,7 @@
 
 Tool for exploring and playing around with network graphs.
 
-![](readme/screenshot.png)
+[![](readme/screenshot.png)](https://aa-graphs.herokuapp.com/)
 
 ## Technologies
 
