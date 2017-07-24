@@ -55,7 +55,7 @@ class Point extends P {
 
     combine(vectors: Point[]) { return combineVectors([this, ...vectors]); }
 
-    isWithinRadius(point: Point, radius: number) { return this.getDistance(point) < radius; }
+    isWithinRadius(point: Point, radius: number) { return isWithinRadius(this, point, radius); }
 }
 
 
@@ -171,6 +171,9 @@ function rotate(vector: Point, degrees: number) {
         (x * sa) + (y * ca)
     );
 }
+
+export function isWithinRadius(from: Point, to: Point, radius: number) { return getDistance(from, to) < radius; }
+
 
 export function combineVectors(vectors: Point[]): Point {
     return vectors.reduce((result, vector) => {
