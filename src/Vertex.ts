@@ -40,6 +40,13 @@ class Vertex {
         return this.velocity.multiply(this.mass);
     }
 
+    isOnEdge(point: P) {
+        const inCircle = this.position.isWithinRadius(point, vertexRadius + lineWidth / 2);
+        const notInside = !this.position.isWithinRadius(point, vertexRadius - lineWidth / 2);
+
+        return inCircle && notInside;
+    }
+
     update() {
         if (!this.dragging) {
             // actual movement happens here
