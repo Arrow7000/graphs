@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import range from 'lodash/range';
 import filter from 'lodash/filter';
 import Vertex from './Vertex';
-import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors, maxVec } from './Point';
+import P, { sqr, getVectorLen, getDistance, normaliseVec, vecFromTo, multiplyVec, getAvgPosition, setVecToLen, combineVectors, maxVec, isP } from './Point';
 import Edge from './Edge';
 import { springLength, stiffness, vertexMass, coulombConst, vertexCharge, cappedElectro, electroCapStrengthDistance, theta, centerForce, G } from './config';
 import {
@@ -117,18 +117,20 @@ export function applySpring(edges: Edge[]) {
     each(edges, edge => {
         const { a, b } = edge.vertices;
         const distance = edge.getDistance();
+        const bIsP = isP(b);
+        const bPos = bIsP ? <P>b : (<Vertex>b).position;
 
         const forceVectorLength = springForce(stiffness, springLength, distance);
         const eachForce = forceVectorLength / 2;
 
 
-        const vecAtoB = vecFromTo(a.position, b.position);
+        const vecAtoB = vecFromTo(a.position, bPos);
         const directionFromAtoB = normaliseVec(vecAtoB);
         const forceAtoB = multiplyVec(directionFromAtoB, eachForce);
         a.applyForce(forceAtoB);
 
         const forceBtoA = multiplyVec(forceAtoB, -1);
-        b.applyForce(forceBtoA);
+        if (!bIsP) (<Vertex>b).applyForce(forceBtoA);
 
     });
 }

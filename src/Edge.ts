@@ -1,10 +1,8 @@
 import Vertex from './Vertex';
-import P, { getDistance } from './Point';
+import P, { getDistance, isP } from './Point';
 import { edgeColour, vertexRadius, lineWidth } from "./config";
 
 // const arrowHeadLen = 5;
-
-const isP = (vOrP:Vertex|P): vOrP is P => vOrP instanceof P;
 
 class Edge {
 
