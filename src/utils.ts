@@ -36,7 +36,7 @@ export interface Square {
     end: P;
 }
 
-export function constructQuadTree(nodes: Vertex[], square: Square, ctx?: CanvasRenderingContext2D, depth?: number): QuadNode {
+export function constructQuadTree(nodes: Vertex[], square: Square, ctx?: CanvasRenderingContext2D, depth = 0): QuadNode {
 
     const { origin, end } = square;
 
@@ -49,7 +49,7 @@ export function constructQuadTree(nodes: Vertex[], square: Square, ctx?: CanvasR
         const quads = mapValues(grouped, (vertices, quarterName) => {
             const newSquare = getNewSquare(quarterName, square);
 
-            return constructQuadTree(vertices, newSquare, ctx, depth ? depth + 1 : 1);
+            return constructQuadTree(vertices, newSquare, ctx, depth + 1);
         });
 
 

@@ -4,7 +4,7 @@ import range from 'lodash/range';
 import Vertex from './Vertex';
 import Edge from './Edge';
 import { applyElectrostatic, applySpring, applyCenterMovement } from './forces';
-import { constructQuadTree, getAvgMomentum } from './utils';
+import { getAvgMomentum } from './utils';
 import { vertexRadius, backgroundColour } from './config';
 import { Updater } from './mainHelpers';
 import handlers from './touchHandlers';
@@ -12,7 +12,7 @@ import handlers from './touchHandlers';
 const { random } = Math;
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = <CanvasRenderingContext2D>(canvas.getContext('2d'));
 const frame = 1000 / 60;
 
 /**

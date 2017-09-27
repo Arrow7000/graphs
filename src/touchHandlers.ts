@@ -8,7 +8,7 @@ interface TouchHolder {
 }
 
 interface Click {
-    vertex: Vertex;
+    vertex: Vertex | null;
     offset: P;
 }
 

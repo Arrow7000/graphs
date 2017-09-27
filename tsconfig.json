@@ -1,15 +1,10 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "allowSyntheticDefaultImports": true,
-        "module": "es2015",
-        "lib": [
-            "es2015",
-            "es2016",
-            "dom"
-        ]
-    },
-    "include": [
-        "./src/*"
-    ]
+  "compilerOptions": {
+    "target": "es5",
+    "allowSyntheticDefaultImports": true,
+    "module": "es2015",
+    "lib": ["es2015", "es2016", "dom"],
+    "strictNullChecks": true
+  },
+  "include": ["./src/*"]
 }
