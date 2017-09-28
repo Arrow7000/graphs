@@ -118,7 +118,7 @@ const edges = range(4)
 
 
 
-const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, nodes);
+const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, nodes, edges);
 
 canvas.addEventListener("touchstart", touchStart, false);
 canvas.addEventListener("touchend", touchEnd, false);
@@ -144,9 +144,7 @@ function update() {
     applySpring(edges);
     applyCenterMovement(nodes, getCenter());
 
-    each(edges, edge => {
-        edge.render(ctx);
-    });
+    each(edges, edge => edge.render(ctx));
 
     each(nodes, node => {
         const { x, y } = node.position;
