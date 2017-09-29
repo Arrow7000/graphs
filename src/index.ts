@@ -2,6 +2,7 @@ import P from "./Point";
 import each from "lodash/each";
 import range from "lodash/range";
 import Vertex from "./Vertex";
+import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
 import { getAvgMomentum } from "./utils";
@@ -48,10 +49,9 @@ const maxAvgMomentumLen = 2.5;
 
 import * as network from "./network";
 
-const vertices = range(13).map(() => {
-  // const x = (side - window) / 2 + random() * window;
-  // const y = (side - window) / 2 + random() * window;
+const vertexCreator = new VertexCreator(50, 50);
 
+const vertices = range(13).map(() => {
   return new Vertex(getCenter().add(random() * nodesWindow - nodesWindow / 2));
 });
 
@@ -98,9 +98,10 @@ const {
   mouseStart,
   mouseMove,
   mouseEnd
-} = handlers(canvas, vertices, edges);
+} = handlers(canvas, vertices, edges, vertexCreator);
 
 canvas.addEventListener("touchstart", touchStart, false);
+canvas.addEventListener("dblclick", () => console.log("dblclicked"), false);
 canvas.addEventListener("touchend", touchEnd, false);
 canvas.addEventListener("touchcancel", touchEnd, false);
 canvas.addEventListener("touchmove", touchMove, false);
@@ -131,6 +132,8 @@ function update() {
     node.update();
     node.render(ctx);
   });
+
+  vertexCreator.render(ctx);
 }
 
 // Makes graph move around and lose some momentum before first render

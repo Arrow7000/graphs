@@ -1,5 +1,6 @@
 import P from "./Point";
 import Vertex from "./Vertex";
+import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import { vertexRadius, borderWidth } from "./config";
 import { getClosestVertex } from "./helpers";
@@ -54,10 +55,14 @@ function getTouchInfo(
   return { vertex: null };
 }
 
+// TODO: implement this - drag new vertex out of mother vertex with finger or mouse
+function getVertexFontTouch() {}
+
 function handlers(
   canvas: HTMLCanvasElement,
   vertices: Vertex[],
-  edges: Edge[]
+  edges: Edge[],
+  vertexCreator: VertexCreator
 ) {
   function touchStart(event: TouchEvent) {
     event.preventDefault();
@@ -70,6 +75,10 @@ function handlers(
       const touchPoint = getTouchPos(canvas, touch);
       const touchInfo = getTouchInfo(vertices, touchPoint);
       const { vertex, touchedPart } = touchInfo;
+
+      const touchedVertexCreator =
+        vertexCreator.position.getDistance(touchPoint) < borderRadius;
+
       if (vertex) {
         if (touchedPart === vertexPart.body) {
           vertex.dragging = true;
@@ -84,6 +93,10 @@ function handlers(
           edges.push(edge);
           touches[touch.identifier] = edge;
         }
+      } else if (touchedVertexCreator) {
+        const newVertex = new Vertex(touchPoint);
+        throw new Error("Implement vertex creator creating new vertex");
+        vertices.push(newVertex);
       }
     }
   }
@@ -149,7 +162,7 @@ function handlers(
 
   function mouseStart(event: MouseEvent) {
     event.preventDefault();
-
+    console.log("click started");
     const touchPoint = getTouchPos(canvas, event);
     const touchInfo = getTouchInfo(vertices, touchPoint);
     const { vertex, touchedPart } = touchInfo;
