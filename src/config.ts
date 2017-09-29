@@ -1,5 +1,5 @@
 // drawing configs
-export const vertexRadius = 20;
+export const vertexRadius = 25;
 
 // Spring forces
 export const springLength = 50;
@@ -33,4 +33,4 @@ export const G = 2; // gravitational constants
 export const backgroundColour = '#019851';
 export const nodeBodyColour = '#446CB3';
 export const edgeColour = '#E4F1FE';
-export const lineWidth = 3;
+export const lineWidth = 10;
