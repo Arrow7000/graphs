@@ -9,20 +9,40 @@ interface TouchHolder {
 }
 
 interface Click {
-  vertex: Vertex | null;
+  item: Vertex | Edge | null;
   offset: P;
 }
 
 const touches: TouchHolder = {};
 
 let click: Click = {
-  vertex: null,
+  item: null,
   offset: new P()
 };
 
+function getClosestVertex(
+  vertices: Vertex[],
+  point: P,
+  excludeVertex?: Vertex
+): Vertex | null {
+  let closestDistance = Infinity;
+  const closestVertex = vertices.reduce((last, vertex) => {
+    if (vertex === excludeVertex) return last;
+
+    const distance = vertex.position.getDistance(point);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      return vertex;
+    } else {
+      return last;
+    }
+  }, null);
+  return closestVertex;
+}
+
 function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
   const bodyRadius = vertexRadius - lineWidth / 2;
-  const lineRadius = vertexRadius + lineWidth / 2;
+  const borderRadius = vertexRadius + lineWidth / 2;
 
   enum itemTouched {
     body,
@@ -39,33 +59,25 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
 
       const touchPoint = getTouchPos(canvas, touch);
 
-      const touchedVertexObj = nodes.reduce((last, vertex) => {
-        const isInBody = vertex.position.getDistance(touchPoint) < bodyRadius;
-        const isInBorder = vertex.position.getDistance(touchPoint) < lineRadius;
+      const closestVertex = getClosestVertex(nodes, touchPoint);
+      if (closestVertex) {
+        const distance = closestVertex.position.getDistance(touchPoint);
+        const isInsideBorder = distance < borderRadius;
+        const isInsideBody = distance < bodyRadius;
 
-        if (isInBorder) {
-          if (isInBody) {
-            return { vertex, touchedItem: itemTouched.body };
+        if (isInsideBorder) {
+          if (isInsideBody) {
+            closestVertex.dragging = true;
+            touches[touch.identifier] = closestVertex;
           } else {
-            return { vertex, touchedItem: itemTouched.radius };
+            const edge = new Edge(closestVertex, touchPoint);
+            /**
+               * @TODO
+               * - Don't like mutating the array in an obscure method
+               */
+            edges.push(edge);
+            touches[touch.identifier] = edge;
           }
-        }
-        return last;
-      }, null);
-
-      if (touchedVertexObj) {
-        const { vertex, touchedItem } = touchedVertexObj;
-        if (touchedItem === itemTouched.body) {
-          vertex.dragging = true;
-          touches[touch.identifier] = vertex;
-        } else {
-          const edge = new Edge(vertex, touchPoint);
-          /**
-             * @TODO
-             * - Don't like mutating the array in an obscure method
-             */
-          edges.push(edge);
-          touches[touch.identifier] = edge;
         }
       }
     }
@@ -83,7 +95,7 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
         if (item instanceof Vertex) {
           item.drag(position);
         } else {
-          item.vertices.b = position;
+          item.setPointB(position);
         }
       }
     }
@@ -102,22 +114,28 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
         if (item instanceof Vertex) {
           item.dragging = false;
         } else {
-          // either attach to vertex or delete
-          const droppedVertex = nodes.reduce((last, vertex) => {
-            const isInsideBorder =
-              vertex.position.getDistance(touchPoint) < lineRadius;
 
-            if (isInsideBorder && vertex !== item.vertices.a) {
-              return vertex;
+          const closestVertex = getClosestVertex(
+            nodes,
+            touchPoint,
+            item.vertices.a
+          );
+          if (closestVertex) {
+            const isOnVertex = closestVertex.position.isWithinRadius(
+              touchPoint,
+              borderRadius
+            );
+
+            if (isOnVertex) {
+              item.attachToVertex(closestVertex);
+            } else {
+              const edgeIndex = edges.indexOf(item);
+              /**
+             * @TODO
+             * - Don't like mutating array here either :/
+             */
+              edges.splice(edgeIndex, 1);
             }
-            return last;
-          }, null);
-
-          if (droppedVertex) {
-            item.vertices.b = droppedVertex;
-          } else {
-            const edgeIndex = edges.indexOf(item);
-            edges.splice(edgeIndex, 1);
           }
         }
       }
@@ -130,40 +148,79 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
 
     const position = getTouchPos(canvas, event);
 
-    const { x, y } = position;
+    const closestVertex = getClosestVertex(nodes, position);
+    if (closestVertex) {
+      const distance = closestVertex.position.getDistance(position);
+      const isInsideBorder = distance < borderRadius;
+      const isInsideBody = distance < bodyRadius;
 
-    const vertex = nodes.reduce((last, vertex) => {
-      if (vertex.position.isWithinRadius(new P(x, y), vertexRadius)) {
-        return vertex;
+      if (isInsideBorder) {
+        if (isInsideBody) {
+          click.item = closestVertex;
+          click.offset = closestVertex.position.vecTo(position);
+          closestVertex.dragging = true;
+        } else {
+          const edge = new Edge(closestVertex, position);
+          /**
+         * @TODO
+         * - Don't like mutating the array in an obscure method
+         */
+          edges.push(edge);
+          click.item = edge;
+        }
       }
-      return last;
-    }, null);
-
-    if (vertex) {
-      click.vertex = vertex;
-      click.offset = vertex.position.vecTo(position);
-      vertex.dragging = true;
     }
   }
 
   function mouseMove(event: MouseEvent) {
-    const { vertex, offset } = click;
-    if (vertex) {
+    const { item, offset } = click;
+    if (item) {
       event.preventDefault();
 
       const pos = getTouchPos(canvas, event);
-      vertex.drag(pos.subtract(offset));
+      if (item instanceof Vertex) {
+        item.drag(pos.subtract(offset));
+      } else {
+        item.setPointB(pos);
+      }
     }
   }
 
   function mouseEnd(event: MouseEvent) {
     event.preventDefault();
 
-    const { vertex } = click;
-    if (vertex) {
-      vertex.dragging = false;
+    const { item } = click;
+    if (item) {
+      if (item instanceof Vertex) {
+        item.dragging = false;
+      } else {
+        const position = getTouchPos(canvas, event);
+
+        const closestVertex = getClosestVertex(
+          nodes,
+          position,
+          item.vertices.a
+        );
+        if (closestVertex) {
+          const isOnVertex = closestVertex.position.isWithinRadius(
+            position,
+            borderRadius
+          );
+
+          if (isOnVertex) {
+            item.attachToVertex(closestVertex);
+          } else {
+            const edgeIndex = edges.indexOf(item);
+            /**
+             * @TODO
+             * - Don't like mutating array here either :/
+             */
+            edges.splice(edgeIndex, 1);
+          }
+        }
+      }
     }
-    click.vertex = null;
+    click.item = null;
   }
 
   return { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd };
