@@ -1,7 +1,7 @@
 import P from "./Point";
 import Vertex from "./Vertex";
 import Edge from "./Edge";
-import { vertexRadius, lineWidth } from "./config";
+import { vertexRadius, borderWidth } from "./config";
 import find from "lodash/find";
 
 interface TouchHolder {
@@ -40,9 +40,13 @@ function getClosestVertex(
   return closestVertex;
 }
 
-function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
-  const bodyRadius = vertexRadius - lineWidth / 2;
-  const borderRadius = vertexRadius + lineWidth / 2;
+function handlers(
+  canvas: HTMLCanvasElement,
+  vertices: Vertex[],
+  edges: Edge[]
+) {
+  const bodyRadius = vertexRadius - borderWidth / 2;
+  const borderRadius = vertexRadius + borderWidth / 2;
 
   enum itemTouched {
     body,
@@ -59,7 +63,7 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
 
       const touchPoint = getTouchPos(canvas, touch);
 
-      const closestVertex = getClosestVertex(nodes, touchPoint);
+      const closestVertex = getClosestVertex(vertices, touchPoint);
       if (closestVertex) {
         const distance = closestVertex.position.getDistance(touchPoint);
         const isInsideBorder = distance < borderRadius;
@@ -114,9 +118,8 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
         if (item instanceof Vertex) {
           item.dragging = false;
         } else {
-
           const closestVertex = getClosestVertex(
-            nodes,
+            vertices,
             touchPoint,
             item.vertices.a
           );
@@ -148,7 +151,7 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
 
     const position = getTouchPos(canvas, event);
 
-    const closestVertex = getClosestVertex(nodes, position);
+    const closestVertex = getClosestVertex(vertices, position);
     if (closestVertex) {
       const distance = closestVertex.position.getDistance(position);
       const isInsideBorder = distance < borderRadius;
@@ -197,7 +200,7 @@ function handlers(canvas: HTMLCanvasElement, nodes: Vertex[], edges: Edge[]) {
         const position = getTouchPos(canvas, event);
 
         const closestVertex = getClosestVertex(
-          nodes,
+          vertices,
           position,
           item.vertices.a
         );

@@ -116,7 +116,7 @@ function springForce(stiffness: number, springLength: number, distance: number):
 export function applySpring(edges: Edge[]) {
     each(edges, edge => {
         const { a, b } = edge.vertices;
-        const distance = edge.getDistance();
+        const distance = edge.getLength();
         const bIsP = isP(b);
         const bPos = bIsP ? <P>b : (<Vertex>b).position;
 
@@ -185,6 +185,7 @@ function getLargestSquare(vertices: Vertex[]): Square {
 
 
 function cap(num: number, limit: number, isLowerBound: boolean): number {
+    // return isLowerBound ? (num < limit ? limit : num) : (num > limit ? limit : num);
     if (isLowerBound) {
         return num < limit ? limit : num;
     }

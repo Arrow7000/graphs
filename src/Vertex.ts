@@ -1,5 +1,5 @@
 import P, { random, floor, addVec, multiplyVec } from './Point';
-import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour, lineWidth } from './config';
+import { damping, vertexMass, vertexRadius, vertexCharge, nodeBodyColour, edgeColour, borderWidth } from './config';
 
 const uuidChunk = () => floor(random() * 1000000);
 const uuid = () => '' + uuidChunk() + '-' + uuidChunk() + '-' + uuidChunk();
@@ -41,8 +41,8 @@ class Vertex {
     }
 
     isOnEdge(point: P) {
-        const inCircle = this.position.isWithinRadius(point, vertexRadius + lineWidth / 2);
-        const notInside = !this.position.isWithinRadius(point, vertexRadius - lineWidth / 2);
+        const inCircle = this.position.isWithinRadius(point, vertexRadius + borderWidth / 2);
+        const notInside = !this.position.isWithinRadius(point, vertexRadius - borderWidth / 2);
 
         return inCircle && notInside;
     }
@@ -89,7 +89,7 @@ class Vertex {
         ctx.fill();
 
         // ctx.lineWidth = 3 + .1 * this.stress;
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = borderWidth;
         ctx.strokeStyle = edgeColour;
         ctx.stroke();
 

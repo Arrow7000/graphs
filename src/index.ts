@@ -50,7 +50,7 @@ const maxAvgMomentumLen = 2.5;
 
 import * as network from './network';
 
-const nodes = range(13)
+const vertices = range(13)
     .map(() => {
         // const x = (side - window) / 2 + random() * window;
         // const y = (side - window) / 2 + random() * window;
@@ -62,26 +62,26 @@ const edges = range(4)
     .map(num => {
         const aIndex = num;
         const bIndex = num + 1;
-        const nodeA = nodes[aIndex];
-        const nodeB = nodes[bIndex];
-        return new Edge(nodeA, nodeB);
+        const vertexA = vertices[aIndex];
+        const vertexB = vertices[bIndex];
+        return new Edge(vertexA, vertexB);
     })
     .concat([
-        new Edge(nodes[1], nodes[4]),
-        new Edge(nodes[6], nodes[4]),
-        new Edge(nodes[6], nodes[5]),
-        new Edge(nodes[1], nodes[3]),
-        new Edge(nodes[1], nodes[7]),
-        new Edge(nodes[1], nodes[10]),
-        new Edge(nodes[10], nodes[3]),
-        new Edge(nodes[7], nodes[8]),
-        new Edge(nodes[12], nodes[3]),
-        new Edge(nodes[12], nodes[11]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[11], nodes[9]),
-        new Edge(nodes[10], nodes[8]),
-        new Edge(nodes[12], nodes[9]),
-        new Edge(nodes[12], nodes[1]),
+        new Edge(vertices[1], vertices[4]),
+        new Edge(vertices[6], vertices[4]),
+        new Edge(vertices[6], vertices[5]),
+        new Edge(vertices[1], vertices[3]),
+        new Edge(vertices[1], vertices[7]),
+        new Edge(vertices[1], vertices[10]),
+        new Edge(vertices[10], vertices[3]),
+        new Edge(vertices[7], vertices[8]),
+        new Edge(vertices[12], vertices[3]),
+        new Edge(vertices[12], vertices[11]),
+        new Edge(vertices[12], vertices[9]),
+        new Edge(vertices[11], vertices[9]),
+        new Edge(vertices[10], vertices[8]),
+        new Edge(vertices[12], vertices[9]),
+        new Edge(vertices[12], vertices[1]),
     ]);
 
 
@@ -98,7 +98,7 @@ const edges = range(4)
 
 
 
-const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, nodes, edges);
+const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, vertices, edges);
 
 canvas.addEventListener("touchstart", touchStart, false);
 canvas.addEventListener("touchend", touchEnd, false);
@@ -120,13 +120,13 @@ function update() {
     ctx.fillStyle = backgroundColour;
     ctx.fillRect(0, 0, getWidth(), getHeight());
 
-    applyElectrostatic(nodes);
+    applyElectrostatic(vertices);
     applySpring(edges);
-    applyCenterMovement(nodes, getCenter());
+    applyCenterMovement(vertices, getCenter());
 
     each(edges, edge => edge.render(ctx));
 
-    each(nodes, node => {
+    each(vertices, node => {
         const { x, y } = node.position;
         node.setText(`(${round(x)}, ${round(y)})`)
         node.update();
@@ -144,7 +144,7 @@ let cycle = 0;
 const t0 = performance.now();
 do {
     update();
-    avgMomentum = getAvgMomentum(nodes);
+    avgMomentum = getAvgMomentum(vertices);
     cycle++;
 
     if (performance.now() - t0 > maxPrerenderTime) {

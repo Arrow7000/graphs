@@ -1,7 +1,6 @@
 import Vertex from './Vertex';
 import P, { getDistance, isP } from './Point';
-import { edgeColour, vertexRadius, lineWidth } from "./config";
-
+import { edgeColour, vertexRadius, edgeWidth } from "./config";
 
 class Edge {
 
@@ -19,7 +18,7 @@ class Edge {
         this.directed = directed;
     }
 
-    getDistance() {
+    getLength() {
         const { a, b } = this.vertices;
         const bPos = isP(b) ? b : b.position;
         const distance = getDistance(a.position, bPos);
@@ -44,7 +43,7 @@ class Edge {
 
         ctx.beginPath();
         // ctx.lineWidth = 2;
-        ctx.lineWidth = lineWidth / 2;        
+        ctx.lineWidth = edgeWidth / 2;        
         ctx.moveTo(a.position.x, a.position.y);
         ctx.lineTo(bPos.x, bPos.y);
         ctx.strokeStyle = edgeColour;
@@ -60,7 +59,7 @@ class Edge {
             const sideLen = 15;
             const center = bPos;
 
-            const triangleTip = center.add(new P(0, vertexRadius + lineWidth / 2).rotate(angle));
+            const triangleTip = center.add(new P(0, vertexRadius + edgeWidth / 2).rotate(angle));
 
             const vertical = new P(0, sideLen);
             const rotationDegrees = 30;
@@ -73,7 +72,7 @@ class Edge {
             ctx.beginPath();
             ctx.moveTo(triangleTip.x, triangleTip.y);
 
-            ctx.lineWidth = lineWidth;
+            ctx.lineWidth = edgeWidth;
             ctx.fillStyle = edgeColour;
             ctx.lineTo(triangleA.x, triangleA.y);
             ctx.lineTo(triangleB.x, triangleB.y);
