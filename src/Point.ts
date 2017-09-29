@@ -181,4 +181,6 @@ export function combineVectors(vectors: Point[]): Point {
     }, new Point());
 }
 
+export const isP = (vOrP: P | any): vOrP is P => vOrP instanceof P;
+
 export default Point;

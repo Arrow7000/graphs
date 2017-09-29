@@ -1,7 +1,6 @@
 import Vertex from './Vertex';
-import P, { getDistance } from './Point';
+import P, { getDistance, isP } from './Point';
 import { edgeColour, vertexRadius, lineWidth } from "./config";
-
 
 
 class Edge {
@@ -9,10 +8,10 @@ class Edge {
     directed: boolean;
     vertices: {
         a: Vertex,
-        b: Vertex
+        b: Vertex | P
     }
 
-    constructor(vertexA: Vertex, vertexB: Vertex, directed: boolean = true) {
+    constructor(vertexA: Vertex, vertexB: Vertex | P, directed = true) {
         this.vertices = {
             a: vertexA,
             b: vertexB,
@@ -22,7 +21,8 @@ class Edge {
 
     getDistance() {
         const { a, b } = this.vertices;
-        const distance = getDistance(a.position, b.position);
+        const bPos = isP(b) ? b : b.position;
+        const distance = getDistance(a.position, bPos);
         return distance;
     }
 
@@ -40,24 +40,25 @@ class Edge {
 
     render(ctx: CanvasRenderingContext2D) {
         const { a, b } = this.vertices;
+        const bPos = isP(b) ? b : b.position;        
 
         ctx.beginPath();
         // ctx.lineWidth = 2;
         ctx.lineWidth = lineWidth / 2;        
         ctx.moveTo(a.position.x, a.position.y);
-        ctx.lineTo(b.position.x, b.position.y);
+        ctx.lineTo(bPos.x, bPos.y);
         ctx.strokeStyle = edgeColour;
         ctx.stroke();
 
 
         if (this.directed) {
             const { a, b } = this.vertices;
-            const { x, y } = b.position;
-            const lineVec = a.position.vecTo(b.position);
+            const { x, y } = bPos;
+            const lineVec = a.position.vecTo(bPos);
             const angle = lineVec.getAngle() + 90;
 
             const sideLen = 15;
-            const center = this.vertices.b.position;
+            const center = bPos;
 
             const triangleTip = center.add(new P(0, vertexRadius + lineWidth / 2).rotate(angle));
 
