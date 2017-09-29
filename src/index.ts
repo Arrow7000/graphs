@@ -15,26 +15,6 @@ const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const ctx = <CanvasRenderingContext2D>(canvas.getContext('2d'));
 const frame = 1000 / 60;
 
-/**
- * Roadmap
- * - Decide on format for storing networks
- * - Make canvas resize to size of viewport - maybe use requestAnimationFrame
- * - Optionally also 'zoom' in or out virtually depending on viewport size
- * V - Colour nodes and edges
- * - Allow user to create new nodes
- * - Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
- * - Create import tool
- * - create connectors to interface with import tool - e.g. import friends list from FB or Twitter followers network
- * V - Create directed edges, with arrow to display direction
- * - Create dashboard
- */
-
-/**
- * Dashboard
- * - Allow user to save current state
- * - Allow user to select from multiple saved states
- */
-
 
 // Closures
 let centerPoint = new P();
