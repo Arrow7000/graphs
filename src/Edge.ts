@@ -2,7 +2,6 @@ import Vertex from './Vertex';
 import P, { getDistance } from './Point';
 import { edgeColour, vertexRadius, lineWidth } from "./config";
 
-// const arrowHeadLen = 5;
 
 
 class Edge {
@@ -27,11 +26,24 @@ class Edge {
         return distance;
     }
 
+    setPointB(point: P){
+        if (this.vertices.b instanceof P) {
+            this.vertices.b = point;
+        } else {
+            throw new Error('Only allowed to move point `b` if it is not a vertex');
+        }
+    }
+
+    attachToVertex(vertex: Vertex){
+        this.vertices.b = vertex;
+    }
+
     render(ctx: CanvasRenderingContext2D) {
         const { a, b } = this.vertices;
 
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        // ctx.lineWidth = 2;
+        ctx.lineWidth = lineWidth / 2;        
         ctx.moveTo(a.position.x, a.position.y);
         ctx.lineTo(b.position.x, b.position.y);
         ctx.strokeStyle = edgeColour;
@@ -47,7 +59,7 @@ class Edge {
             const sideLen = 15;
             const center = this.vertices.b.position;
 
-            const triangleTip = center.add(new P(0, vertexRadius).rotate(angle));
+            const triangleTip = center.add(new P(0, vertexRadius + lineWidth / 2).rotate(angle));
 
             const vertical = new P(0, sideLen);
             const rotationDegrees = 30;
