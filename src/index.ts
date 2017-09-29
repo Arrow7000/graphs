@@ -1,20 +1,19 @@
-import P from './Point';
-import each from 'lodash/each';
-import range from 'lodash/range';
-import Vertex from './Vertex';
-import Edge from './Edge';
-import { applyElectrostatic, applySpring, applyCenterMovement } from './forces';
-import { getAvgMomentum } from './utils';
-import { vertexRadius, backgroundColour } from './config';
-import { Updater } from './mainHelpers';
-import handlers from './touchHandlers';
+import P from "./Point";
+import each from "lodash/each";
+import range from "lodash/range";
+import Vertex from "./Vertex";
+import Edge from "./Edge";
+import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
+import { getAvgMomentum } from "./utils";
+import { vertexRadius, backgroundColour } from "./config";
+import { Updater } from "./mainHelpers";
+import handlers from "./touchHandlers";
 
 const { random } = Math;
 
-const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-const ctx = <CanvasRenderingContext2D>(canvas.getContext('2d'));
+const canvas = <HTMLCanvasElement>document.getElementById("canvas");
+const ctx = <CanvasRenderingContext2D>canvas.getContext("2d");
 const frame = 1000 / 60;
-
 
 // Closures
 let centerPoint = new P();
@@ -28,18 +27,17 @@ const getHeight = () => heightProp;
 
 // reassign closures
 function canvasResize() {
-    console.log('resizing');
+  console.log("resizing");
 
-    widthProp = canvas.offsetWidth;
-    heightProp = canvas.offsetHeight;
-    centerPoint = new P(widthProp / 2, heightProp / 2);
+  widthProp = canvas.offsetWidth;
+  heightProp = canvas.offsetHeight;
+  centerPoint = new P(widthProp / 2, heightProp / 2);
 
-    ctx.canvas.width = widthProp;
-    ctx.canvas.height = heightProp;
+  ctx.canvas.width = widthProp;
+  ctx.canvas.height = heightProp;
 }
 
 canvasResize();
-
 
 const side = Math.min(getWidth(), getHeight());
 const nodesWindow = 300;
@@ -48,43 +46,40 @@ const nodesWindow = 300;
 const maxPrerenderTime = 1000; // ms
 const maxAvgMomentumLen = 2.5;
 
-import * as network from './network';
+import * as network from "./network";
 
-const vertices = range(13)
-    .map(() => {
-        // const x = (side - window) / 2 + random() * window;
-        // const y = (side - window) / 2 + random() * window;
+const vertices = range(13).map(() => {
+  // const x = (side - window) / 2 + random() * window;
+  // const y = (side - window) / 2 + random() * window;
 
-        return new Vertex(getCenter().add((random() * nodesWindow) - nodesWindow / 2));
-    });
+  return new Vertex(getCenter().add(random() * nodesWindow - nodesWindow / 2));
+});
 
 const edges = range(4)
-    .map(num => {
-        const aIndex = num;
-        const bIndex = num + 1;
-        const vertexA = vertices[aIndex];
-        const vertexB = vertices[bIndex];
-        return new Edge(vertexA, vertexB);
-    })
-    .concat([
-        new Edge(vertices[1], vertices[4]),
-        new Edge(vertices[6], vertices[4]),
-        new Edge(vertices[6], vertices[5]),
-        new Edge(vertices[1], vertices[3]),
-        new Edge(vertices[1], vertices[7]),
-        new Edge(vertices[1], vertices[10]),
-        new Edge(vertices[10], vertices[3]),
-        new Edge(vertices[7], vertices[8]),
-        new Edge(vertices[12], vertices[3]),
-        new Edge(vertices[12], vertices[11]),
-        new Edge(vertices[12], vertices[9]),
-        new Edge(vertices[11], vertices[9]),
-        new Edge(vertices[10], vertices[8]),
-        new Edge(vertices[12], vertices[9]),
-        new Edge(vertices[12], vertices[1]),
-    ]);
-
-
+  .map(num => {
+    const aIndex = num;
+    const bIndex = num + 1;
+    const vertexA = vertices[aIndex];
+    const vertexB = vertices[bIndex];
+    return new Edge(vertexA, vertexB);
+  })
+  .concat([
+    new Edge(vertices[1], vertices[4]),
+    new Edge(vertices[6], vertices[4]),
+    new Edge(vertices[6], vertices[5]),
+    new Edge(vertices[1], vertices[3]),
+    new Edge(vertices[1], vertices[7]),
+    new Edge(vertices[1], vertices[10]),
+    new Edge(vertices[10], vertices[3]),
+    new Edge(vertices[7], vertices[8]),
+    new Edge(vertices[12], vertices[3]),
+    new Edge(vertices[12], vertices[11]),
+    new Edge(vertices[12], vertices[9]),
+    new Edge(vertices[11], vertices[9]),
+    new Edge(vertices[10], vertices[8]),
+    new Edge(vertices[12], vertices[9]),
+    new Edge(vertices[12], vertices[1])
+  ]);
 
 // const nodes = network.nodes.map(() => {
 //     const x = (side - window) / 2 + random() * window;
@@ -96,9 +91,14 @@ const edges = range(4)
 //     return new Edge(nodes[from], nodes[to]);
 // });
 
-
-
-const { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd } = handlers(canvas, vertices, edges);
+const {
+  touchStart,
+  touchMove,
+  touchEnd,
+  mouseStart,
+  mouseMove,
+  mouseEnd
+} = handlers(canvas, vertices, edges);
 
 canvas.addEventListener("touchstart", touchStart, false);
 canvas.addEventListener("touchend", touchEnd, false);
@@ -112,30 +112,26 @@ canvas.addEventListener("mousemove", mouseMove, false);
 
 window.addEventListener("resize", canvasResize, false);
 
-
 const { round } = Math;
 
 function update() {
-    ctx.beginPath();
-    ctx.fillStyle = backgroundColour;
-    ctx.fillRect(0, 0, getWidth(), getHeight());
+  ctx.beginPath();
+  ctx.fillStyle = backgroundColour;
+  ctx.fillRect(0, 0, getWidth(), getHeight());
 
-    applyElectrostatic(vertices);
-    applySpring(edges);
-    applyCenterMovement(vertices, getCenter());
+  applyElectrostatic(vertices);
+  applySpring(edges);
+  applyCenterMovement(vertices, getCenter());
 
-    each(edges, edge => edge.render(ctx));
+  each(edges, edge => edge.render(ctx));
 
-    each(vertices, node => {
-        const { x, y } = node.position;
-        node.setText(`(${round(x)}, ${round(y)})`)
-        node.update();
-        node.render(ctx);
-    });
-
+  each(vertices, node => {
+    const { x, y } = node.position;
+    node.setText(`(${round(x)}, ${round(y)})`);
+    node.update();
+    node.render(ctx);
+  });
 }
-
-
 
 // Makes graph move around and lose some momentum before first render
 let avgMomentum = 0;
@@ -143,17 +139,18 @@ let cycle = 0;
 
 const t0 = performance.now();
 do {
-    update();
-    avgMomentum = getAvgMomentum(vertices);
-    cycle++;
+  update();
+  avgMomentum = getAvgMomentum(vertices);
+  cycle++;
 
-    if (performance.now() - t0 > maxPrerenderTime) {
-        break;
-    }
+  if (performance.now() - t0 > maxPrerenderTime) {
+    break;
+  }
 } while (avgMomentum > maxAvgMomentumLen);
 const t1 = performance.now();
 
-console.info('Cycled ' + cycle + ' times before render, in ' + (t1 - t0) + 'ms');
-
+console.info(
+  "Cycled " + cycle + " times before render, in " + (t1 - t0) + "ms"
+);
 
 Updater(getWidth(), getHeight(), ctx, update);
