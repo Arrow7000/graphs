@@ -6,7 +6,7 @@ import Edge from "./Edge";
 import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
 import { getAvgMomentum } from "./utils";
 import { vertexRadius, backgroundColour } from "./config";
-import { Updater } from "./mainHelpers";
+import { Updater } from "./helpers";
 import handlers from "./touchHandlers";
 
 const { random } = Math;
