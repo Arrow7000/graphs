@@ -32,3 +32,4 @@ Tool for exploring and playing around with network graphs.
     - [ ] Allow user to select from multiple saved states
     - [ ] Checkbox to display quadtrees
 - [ ] Calculate tension of layout and reshuffle before render to get lowest-tensioned layout
+- [ ] Make edge of viewport barrier for nodes, so unconnected ones can't escape
