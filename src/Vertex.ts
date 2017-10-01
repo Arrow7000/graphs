@@ -9,9 +9,7 @@ import {
   edgeColour,
   borderWidth
 } from "./config";
-
-const uuidChunk = () => floor(random() * 1000000);
-const uuid = () => "" + uuidChunk() + "-" + uuidChunk() + "-" + uuidChunk();
+import { uuid } from "./helpers";
 
 class Vertex {
   id: string;

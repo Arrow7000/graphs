@@ -1,8 +1,10 @@
 import Vertex from "./Vertex";
 import P, { getDistance, isP } from "./Point";
 import { edgeColour, vertexRadius, edgeWidth } from "./config";
+import { uuid } from "./helpers";
 
 class Edge {
+  id: string;
   directed: boolean;
   vertices: {
     a: Vertex;
@@ -10,6 +12,7 @@ class Edge {
   };
 
   constructor(vertexA: Vertex, vertexB: Vertex | P, directed = true) {
+    this.id = uuid();
     this.vertices = {
       a: vertexA,
       b: vertexB

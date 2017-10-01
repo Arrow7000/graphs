@@ -37,3 +37,7 @@ export function getClosestVertex(
   }, null);
   return closestVertex;
 }
+
+const uuidChunk = () => floor(random() * 1000000);
+export const uuid = () =>
+  "" + uuidChunk() + "-" + uuidChunk() + "-" + uuidChunk();
