@@ -55,8 +55,46 @@ function getTouchInfo(
   return { vertex: null };
 }
 
-// TODO: implement this - drag new vertex out of mother vertex with finger or mouse
-function getVertexFontTouch() {}
+// universal stuff for creating new vertex
+function newVertexUniversals(
+  vertices: Vertex[],
+  startCenter: P,
+  vertexCreator: VertexCreator
+) {
+  const newVertex = new Vertex(startCenter);
+  newVertex.newlyCreatedBy = vertexCreator;
+  newVertex.dragging = true;
+  vertices.push(newVertex);
+  return newVertex;
+}
+
+// specific to creating new vertex by touch
+function newVertexTouch(
+  vertices: Vertex[],
+  touchPoint: P,
+  touches: TouchHolder,
+  touch: Touch,
+  vertexCreator: VertexCreator
+) {
+  const newVertex = newVertexUniversals(vertices, touchPoint, vertexCreator);
+
+  newVertex.drag(touchPoint); // snap to finger
+  touches[touch.identifier] = newVertex;
+}
+
+// specific to creating new vertex by mouse
+function newVertexMouse(
+  vertices: Vertex[],
+  touchPoint: P,
+  click: Click,
+  vertexCreator: VertexCreator
+) {
+  const { position } = vertexCreator;
+  const newVertex = newVertexUniversals(vertices, position, vertexCreator);
+
+  click.item = newVertex;
+  click.offset = newVertex.position.vecTo(touchPoint);
+}
 
 function handlers(
   canvas: HTMLCanvasElement,
@@ -94,9 +132,7 @@ function handlers(
           touches[touch.identifier] = edge;
         }
       } else if (touchedVertexCreator) {
-        const newVertex = new Vertex(touchPoint);
-        throw new Error("Implement vertex creator creating new vertex");
-        vertices.push(newVertex);
+        newVertexTouch(vertices, touchPoint, touches, touch, vertexCreator);
       }
     }
   }
@@ -131,6 +167,7 @@ function handlers(
       if (item) {
         if (item instanceof Vertex) {
           item.dragging = false;
+          delete touches[touch.identifier];
         } else {
           const closestVertex = getClosestVertex(
             vertices,
@@ -166,6 +203,10 @@ function handlers(
     const touchPoint = getTouchPos(canvas, event);
     const touchInfo = getTouchInfo(vertices, touchPoint);
     const { vertex, touchedPart } = touchInfo;
+
+    const touchedVertexCreator =
+      vertexCreator.position.getDistance(touchPoint) < borderRadius;
+
     if (vertex) {
       if (touchedPart === vertexPart.body) {
         click.item = vertex;
@@ -180,6 +221,8 @@ function handlers(
         edges.push(edge);
         click.item = edge;
       }
+    } else if (touchedVertexCreator) {
+      newVertexMouse(vertices, touchPoint, click, vertexCreator);
     }
   }
 
@@ -221,6 +264,7 @@ function handlers(
           if (isOnVertex) {
             item.attachToVertex(closestVertex);
           } else {
+            // delete edge
             const edgeIndex = edges.indexOf(item);
             /**
              * @TODO

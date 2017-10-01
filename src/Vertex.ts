@@ -1,4 +1,5 @@
 import P, { random, floor, addVec, multiplyVec } from "./Point";
+import VertexCreator from "./VertexCreator";
 import {
   damping,
   vertexMass,
@@ -21,6 +22,7 @@ class Vertex {
   charge: number;
   dragging: boolean;
   text: string;
+  newlyCreatedBy: VertexCreator | null;
 
   constructor(x: number, y: number);
   constructor(point: P);
