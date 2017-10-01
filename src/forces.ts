@@ -154,7 +154,9 @@ export function applySpring(edges: Edge[]) {
     a.applyForce(forceAtoB);
 
     const forceBtoA = multiplyVec(forceAtoB, -1);
-    if (!bIsP) (<Vertex>b).applyForce(forceBtoA);
+    if (!bIsP) {
+      (<Vertex>b).applyForce(forceBtoA);
+    }
   });
 }
 
@@ -179,6 +181,10 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
 
 function getLargestSquare(vertices: Vertex[]): Square {
   const marginPoint = new P(50, 50);
+  /**
+   * @TODO
+   * - fix getting position of vertex at index 0 for when there's no vertices
+   */
   const startPt = vertices[0].position;
 
   const origin: P = vertices
