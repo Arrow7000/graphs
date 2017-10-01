@@ -1,7 +1,9 @@
 import P from "./Point";
 import Vertex from "./Vertex";
+import VertexCollection from "./VertexCollection";
 import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
+import EdgeCollection from "./EdgeCollection";
 import { vertexRadius, borderWidth } from "./config";
 import { getClosestVertex } from "./helpers";
 import find from "lodash/find";
@@ -36,7 +38,7 @@ interface TouchInfo {
 }
 
 function getTouchInfo(
-  vertices: Vertex[],
+  vertices: VertexCollection,
   touchPoint: P,
   excludeVertex?: Vertex
 ): TouchInfo {
@@ -57,7 +59,7 @@ function getTouchInfo(
 
 // universal stuff for creating new vertex
 function newVertexUniversals(
-  vertices: Vertex[],
+  vertices: VertexCollection,
   startCenter: P,
   vertexCreator: VertexCreator
 ) {
@@ -70,7 +72,7 @@ function newVertexUniversals(
 
 // specific to creating new vertex by touch
 function newVertexTouch(
-  vertices: Vertex[],
+  vertices: VertexCollection,
   touchPoint: P,
   touches: TouchHolder,
   touch: Touch,
@@ -84,7 +86,7 @@ function newVertexTouch(
 
 // specific to creating new vertex by mouse
 function newVertexMouse(
-  vertices: Vertex[],
+  vertices: VertexCollection,
   touchPoint: P,
   click: Click,
   vertexCreator: VertexCreator
@@ -96,10 +98,25 @@ function newVertexMouse(
   click.offset = newVertex.position.vecTo(touchPoint);
 }
 
+function deleteVertex(
+  vertex: Vertex,
+  vertices: VertexCollection,
+  edges: EdgeCollection
+) {
+  const matchingEdges = edges.toArray().filter(edge => {
+    const isOnVertex = edge.vertices.a === vertex || edge.vertices.b === vertex;
+    return isOnVertex;
+  });
+
+  matchingEdges.forEach(edge => edges.delete(edge));
+
+  vertices.delete(vertex);
+}
+
 function handlers(
   canvas: HTMLCanvasElement,
-  vertices: Vertex[],
-  edges: Edge[],
+  vertices: VertexCollection,
+  edges: EdgeCollection,
   vertexCreator: VertexCreator
 ) {
   function touchStart(event: TouchEvent) {
@@ -168,6 +185,12 @@ function handlers(
         if (item instanceof Vertex) {
           item.dragging = false;
           delete touches[touch.identifier];
+
+          const isOnCreator =
+            item.position.getDistance(vertexCreator.position) < borderRadius;
+          if (isOnCreator) {
+            deleteVertex(item, vertices, edges);
+          }
         } else {
           const closestVertex = getClosestVertex(
             vertices,
@@ -183,12 +206,11 @@ function handlers(
             if (isOnVertex) {
               item.attachToVertex(closestVertex);
             } else {
-              const edgeIndex = edges.indexOf(item);
               /**
              * @TODO
              * - Don't like mutating array here either :/
              */
-              edges.splice(edgeIndex, 1);
+              edges.delete(item);
             }
           }
         }
@@ -247,6 +269,13 @@ function handlers(
     if (item) {
       if (item instanceof Vertex) {
         item.dragging = false;
+        click.item = null;
+
+        const isOnCreator =
+          item.position.getDistance(vertexCreator.position) < borderRadius;
+        if (isOnCreator) {
+          deleteVertex(item, vertices, edges);
+        }
       } else {
         const position = getTouchPos(canvas, event);
 
@@ -264,13 +293,11 @@ function handlers(
           if (isOnVertex) {
             item.attachToVertex(closestVertex);
           } else {
-            // delete edge
-            const edgeIndex = edges.indexOf(item);
             /**
              * @TODO
              * - Don't like mutating array here either :/
              */
-            edges.splice(edgeIndex, 1);
+            edges.delete(item);
           }
         }
       }

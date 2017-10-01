@@ -1,5 +1,6 @@
 import Vertex from "./Vertex";
-import P from "./Point";
+import VertexCollection from "./VertexCollection";
+import P, { floor, random } from "./Point";
 
 export function Updater(
   width: number,
@@ -19,12 +20,12 @@ export function Updater(
 }
 
 export function getClosestVertex(
-  vertices: Vertex[],
+  vertices: VertexCollection,
   point: P,
   excludeVertex?: Vertex
 ): Vertex | null {
   let closestDistance = Infinity;
-  const closestVertex = vertices.reduce((last, vertex) => {
+  const closestVertex = vertices.toArray().reduce((last, vertex) => {
     if (vertex === excludeVertex) return last;
 
     const distance = vertex.position.getDistance(point);

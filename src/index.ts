@@ -2,8 +2,10 @@ import P from "./Point";
 import each from "lodash/each";
 import range from "lodash/range";
 import Vertex from "./Vertex";
+import VertexCollection from "./VertexCollection";
 import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
+import EdgeCollection from "./EdgeCollection";
 import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
 import { getAvgMomentum } from "./utils";
 import { vertexRadius, backgroundColour } from "./config";
@@ -51,35 +53,26 @@ import * as network from "./network";
 
 const vertexCreator = new VertexCreator(50, 50);
 
-const vertices = range(13).map(() => {
-  return new Vertex(getCenter().add(random() * nodesWindow - nodesWindow / 2));
-});
-
-const edges = range(4)
-  .map(num => {
-    const aIndex = num;
-    const bIndex = num + 1;
-    const vertexA = vertices[aIndex];
-    const vertexB = vertices[bIndex];
-    return new Edge(vertexA, vertexB);
+const vertices = new VertexCollection(
+  range(13).map(() => {
+    return new Vertex(
+      getCenter().add(random() * nodesWindow - nodesWindow / 2)
+    );
   })
-  .concat([
-    new Edge(vertices[1], vertices[4]),
-    new Edge(vertices[6], vertices[4]),
-    new Edge(vertices[6], vertices[5]),
-    new Edge(vertices[1], vertices[3]),
-    new Edge(vertices[1], vertices[7]),
-    new Edge(vertices[1], vertices[10]),
-    new Edge(vertices[10], vertices[3]),
-    new Edge(vertices[7], vertices[8]),
-    new Edge(vertices[12], vertices[3]),
-    new Edge(vertices[12], vertices[11]),
-    new Edge(vertices[12], vertices[9]),
-    new Edge(vertices[11], vertices[9]),
-    new Edge(vertices[10], vertices[8]),
-    new Edge(vertices[12], vertices[9]),
-    new Edge(vertices[12], vertices[1])
-  ]);
+);
+
+const edgeArray = range(20)
+  .map(() => {
+    const vertexA = vertices.getRandom();
+    const vertexB = vertices.getRandom();
+    if (vertexA !== vertexB) {
+      return new Edge(vertexA, vertexB);
+    }
+    return null;
+  })
+  .filter(item => item !== null);
+
+const edges = new EdgeCollection(<Edge[]>edgeArray);
 
 // const nodes = network.nodes.map(() => {
 //     const x = (side - window) / 2 + random() * window;
@@ -120,17 +113,17 @@ function update() {
   ctx.fillStyle = backgroundColour;
   ctx.fillRect(0, 0, getWidth(), getHeight());
 
-  applyElectrostatic(vertices);
-  applySpring(edges);
-  applyCenterMovement(vertices, getCenter());
+  applyElectrostatic(vertices.toArray());
+  applySpring(edges.toArray());
+  applyCenterMovement(vertices.toArray(), getCenter());
 
-  each(edges, edge => edge.render(ctx));
+  each(edges.toArray(), edge => edge.render(ctx));
 
-  each(vertices, node => {
-    const { x, y } = node.position;
-    node.setText(`(${round(x)}, ${round(y)})`);
-    node.update();
-    node.render(ctx);
+  each(vertices.toArray(), vertex => {
+    const { x, y } = vertex.position;
+    vertex.setText(`(${round(x)}, ${round(y)})`);
+    vertex.update();
+    vertex.render(ctx);
   });
 
   vertexCreator.render(ctx);
@@ -143,7 +136,7 @@ let cycle = 0;
 const t0 = performance.now();
 do {
   update();
-  avgMomentum = getAvgMomentum(vertices);
+  avgMomentum = getAvgMomentum(vertices.toArray());
   cycle++;
 
   if (performance.now() - t0 > maxPrerenderTime) {
