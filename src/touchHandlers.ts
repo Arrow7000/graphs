@@ -187,7 +187,8 @@ function handlers(
           delete touches[touch.identifier];
 
           const isOnCreator =
-            item.position.getDistance(vertexCreator.position) < borderRadius;
+            item.position.getDistance(vertexCreator.position) <
+            borderRadius * 2;
           if (isOnCreator) {
             deleteVertex(item, vertices, edges);
           }
@@ -272,7 +273,7 @@ function handlers(
         click.item = null;
 
         const isOnCreator =
-          item.position.getDistance(vertexCreator.position) < borderRadius;
+          item.position.getDistance(vertexCreator.position) < borderRadius * 2;
         if (isOnCreator) {
           deleteVertex(item, vertices, edges);
         }
