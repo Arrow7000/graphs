@@ -6,7 +6,12 @@ import VertexCollection from "./VertexCollection";
 import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import EdgeCollection from "./EdgeCollection";
-import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
+import {
+  applyElectrostatic,
+  applySpring,
+  applyCenterMovement,
+  boxForce
+} from "./forces";
 import { getAvgMomentum } from "./forceUtils";
 import { vertexRadius, backgroundColour } from "./config";
 import { Updater } from "./helpers";
@@ -118,6 +123,7 @@ function update() {
   applyElectrostatic(vertices.toArray());
   applySpring(edges.toArray());
   applyCenterMovement(vertices.toArray(), getCenter());
+  // boxForce(vertices.toArray(), new P(), new P(getWidth(), getHeight()));
 
   each(edges.toArray(), edge => edge.render(ctx));
 

@@ -102,7 +102,19 @@ export function divideVec(vec: Point, divisor: number): Point {
 }
 
 export const sqr = (num: number) => num * num;
-export const { sqrt, random, abs, floor, sin, cos, tan, pow, PI } = Math;
+export const {
+  sqrt,
+  random,
+  abs,
+  floor,
+  sin,
+  cos,
+  tan,
+  pow,
+  PI,
+  max,
+  min
+} = Math;
 
 export function addLength(vector: Point, length: number): Point {
   const origLen = getVectorLen(vector);
@@ -189,21 +201,81 @@ export function isWithinRadius(from: Point, to: Point, radius: number) {
   return getDistance(from, to) < radius;
 }
 
+function pDistance(x, y, x1, y1, x2, y2) {
+  const A = x - x1;
+  const B = y - y1;
+  const C = x2 - x1;
+  const D = y2 - y1;
+
+  const dot = A * C + B * D;
+  const len_sq = C * C + D * D;
+  let param = -1;
+  if (len_sq !== 0) {
+    //in case of 0 length line
+    param = dot / len_sq;
+  }
+
+  let xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  } else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  } else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  const dx = x - xx;
+  const dy = y - yy;
+  return sqrt(dx * dx + dy * dy);
+}
+
 export function shortestDistanceToLine(
   point: Point,
   lineA: Point,
   lineB: Point
-): number {
-  const { x, y } = point;
-  const top = abs(
-    (lineB.y - lineA.y) * x -
-      (lineB.x - lineA.x) * y +
-      lineB.x * lineA.y -
-      lineB.y * lineA.x
-  );
-  const bottom = sqrt(sqr(lineB.y - lineA.y) + sqr(lineB.x - lineA.x));
+) {
+  return pDistance(point.x, point.y, lineA.x, lineA.y, lineB.x, lineB.y);
+}
 
-  return top / bottom;
+function cap(num: number, limit: number, isLowerBound: boolean): number {
+  if (isLowerBound) {
+    return num < limit ? limit : num;
+  }
+  return num > limit ? limit : num;
+}
+
+// export function isInBox(point: Point, origin: Point, end: Point): boolean {
+//   const { x, y } = point;
+//   const leftMost = min(origin.x, end.x);
+//   const upMost = min(origin.y, end.y);
+//   const rightMost = max(origin.x, end.x);
+//   const downMost = max(origin.y, end.y);
+
+//   return x < leftMost || x > rightMost || y < upMost || y > downMost;
+// }
+
+const toBound = (val: number, min: number, max: number) =>
+  val < min ? min - val : val > max ? max - val : val;
+
+export function toBox(point: Point, origin: Point, end: Point): Point {
+  const { x, y } = point;
+  const leftMost = min(origin.x, end.x);
+  const upMost = min(origin.y, end.y);
+  const rightMost = max(origin.x, end.x);
+  const downMost = max(origin.y, end.y);
+
+  const isInBox = x < leftMost || x > rightMost || y < upMost || y > downMost;
+  if (isInBox) {
+    return new Point();
+  }
+  const xToBox = toBound(x, leftMost, rightMost);
+  const yToBox = toBound(y, upMost, downMost);
+
+  return new Point(xToBox, yToBox);
 }
 
 export function combineVectors(vectors: Point[]): Point {

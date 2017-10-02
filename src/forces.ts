@@ -14,7 +14,8 @@ import P, {
   setVecToLen,
   combineVectors,
   maxVec,
-  isP
+  isP,
+  toBox
 } from "./Point";
 import Edge from "./Edge";
 import {
@@ -177,6 +178,15 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
       node.applyMovement(vector);
     });
   }
+}
+
+export function boxForce(vertices: Vertex[], origin: P, end: P) {
+  each(vertices, vertex => {
+    const nextPosition = vertex.position.add(vertex.velocity);
+    const toBound = toBox(nextPosition, origin, end);
+
+    vertex.applyMovement(toBound);
+  });
 }
 
 function getLargestSquare(vertices: Vertex[]): Square {
