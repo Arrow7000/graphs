@@ -45,7 +45,8 @@ class Edge {
 
     ctx.beginPath();
     // ctx.lineWidth = 2;
-    ctx.lineWidth = edgeWidth / 2;
+    ctx.lineWidth = edgeWidth;
+    ctx.lineCap = "round";
     ctx.moveTo(a.position.x, a.position.y);
     ctx.lineTo(bPos.x, bPos.y);
     ctx.strokeStyle = edgeColour;
@@ -57,11 +58,11 @@ class Edge {
       const lineVec = a.position.vecTo(bPos);
       const angle = lineVec.getAngle() + 90;
 
-      const sideLen = 15;
+      const sideLen = edgeWidth * 2;
       const center = bPos;
 
       const triangleTip = center.add(
-        new P(0, vertexRadius + edgeWidth / 2).rotate(angle)
+        new P(0, vertexRadius + edgeWidth).rotate(angle)
       );
 
       const vertical = new P(0, sideLen);
@@ -74,7 +75,6 @@ class Edge {
 
       ctx.beginPath();
       ctx.moveTo(triangleTip.x, triangleTip.y);
-
       ctx.lineWidth = edgeWidth;
       ctx.fillStyle = edgeColour;
       ctx.lineTo(triangleA.x, triangleA.y);
