@@ -89,6 +89,10 @@ class Vertex {
     this.position = position;
   }
 
+  destress() {
+    this.stress = 0;
+  }
+
   setText(text: string) {
     this.text = text;
   }
@@ -113,7 +117,7 @@ class Vertex {
       ctx.fillText(this.text, x + 10 + vertexRadius, y);
     }
 
-    this.stress = 0;
+    this.destress();
   }
 }
 

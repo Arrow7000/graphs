@@ -115,7 +115,8 @@ window.addEventListener("resize", canvasResize, false);
 
 const { round } = Math;
 
-function update() {
+function update(visible = true) {
+  // `visible` param controls whether render method gets called
   ctx.beginPath();
   ctx.fillStyle = backgroundColour;
   ctx.fillRect(0, 0, getWidth(), getHeight());
@@ -131,10 +132,14 @@ function update() {
     const { x, y } = vertex.position;
     vertex.setText(`(${round(x)}, ${round(y)})`);
     vertex.update();
-    vertex.render(ctx);
+    if (visible) {
+      vertex.render(ctx);
+    }
   });
 
-  vertexCreator.render(ctx);
+  if (visible) {
+    vertexCreator.render(ctx);
+  }
 }
 
 // Makes graph move around and lose some momentum before first render
@@ -143,7 +148,7 @@ let cycle = 0;
 
 const t0 = performance.now();
 do {
-  update();
+  update(false);
   avgMomentum = getAvgMomentum(vertices.toArray());
   cycle++;
 
