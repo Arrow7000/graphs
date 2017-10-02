@@ -17,6 +17,9 @@ import { vertexRadius, backgroundColour } from "./config";
 import { Updater } from "./helpers";
 import handlersFactory from "./touchHandlers";
 
+import "bulma/css/bulma.css";
+import "./style.scss";
+
 const { random } = Math;
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -54,7 +57,7 @@ const nodesWindow = 300;
 const maxPrerenderTime = 1000; // ms
 const maxAvgMomentumLen = 2.5;
 
-const vertexCreator = new VertexCreator(50, 50);
+const vertexCreator = new VertexCreator(getWidth() - 50, getHeight() - 50);
 
 const vertices = new VertexCollection(
   range(13).map(() => {
