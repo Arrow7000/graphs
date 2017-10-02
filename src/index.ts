@@ -7,10 +7,10 @@ import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import EdgeCollection from "./EdgeCollection";
 import { applyElectrostatic, applySpring, applyCenterMovement } from "./forces";
-import { getAvgMomentum } from "./utils";
+import { getAvgMomentum } from "./forceUtils";
 import { vertexRadius, backgroundColour } from "./config";
 import { Updater } from "./helpers";
-import handlers from "./touchHandlers";
+import handlersFactory from "./touchHandlers";
 
 const { random } = Math;
 
@@ -61,7 +61,7 @@ const vertices = new VertexCollection(
   })
 );
 
-const edgeArray = range(20)
+const edgeArray = range(30)
   .map(() => {
     const vertexA = vertices.getRandom();
     const vertexB = vertices.getRandom();
@@ -90,11 +90,11 @@ const {
   touchEnd,
   mouseStart,
   mouseMove,
-  mouseEnd
-} = handlers(canvas, vertices, edges, vertexCreator);
+  mouseEnd,
+  doubleClick
+} = handlersFactory(canvas, vertices, edges, vertexCreator);
 
 canvas.addEventListener("touchstart", touchStart, false);
-canvas.addEventListener("dblclick", () => console.log("dblclicked"), false);
 canvas.addEventListener("touchend", touchEnd, false);
 canvas.addEventListener("touchcancel", touchEnd, false);
 canvas.addEventListener("touchmove", touchMove, false);
@@ -103,6 +103,8 @@ canvas.addEventListener("mousedown", mouseStart, false);
 canvas.addEventListener("mouseup", mouseEnd, false);
 canvas.addEventListener("mouseleave", mouseEnd, false);
 canvas.addEventListener("mousemove", mouseMove, false);
+
+canvas.addEventListener("dblclick", doubleClick, false);
 
 window.addEventListener("resize", canvasResize, false);
 

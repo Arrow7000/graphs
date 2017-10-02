@@ -49,16 +49,17 @@ function getTouchInfo(
   const edge = getClosestEdge(edges, touchPoint);
 
   if (vertex) {
-    const distance = vertex.position.getDistance(touchPoint);
-    const isInsideBorder = distance < borderRadius;
+    const distanceToVertex = vertex.position.getDistance(touchPoint);
+    const isInsideBorder = distanceToVertex < borderRadius;
 
     if (isInsideBorder) {
-      const isInsideBody = distance < bodyRadius;
+      const isInsideBody = distanceToVertex < bodyRadius;
       const touchedPart = isInsideBody ? vertexPart.body : vertexPart.border;
+
       return { vertex, edge: null, touchedPart };
     } else if (edge) {
-      const distance = distanceFromEdge(touchPoint, edge);
-      const isOnEdge = distance < edgeWidth;
+      const distanceToEdge = distanceFromEdge(touchPoint, edge);
+      const isOnEdge = distanceToEdge < edgeWidth;
       if (isOnEdge) {
         return { vertex: null, edge };
       }

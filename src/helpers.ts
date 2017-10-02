@@ -48,7 +48,6 @@ export function distanceFromEdge(point: P, edge: Edge): number {
   const aPos = a.position;
   const bPos = isP(b) ? b : b.position;
   const distance = point.distanceToLine(aPos, bPos);
-  console.log({ distance });
   return distance;
 }
 
@@ -64,7 +63,6 @@ export function getClosestEdge(edges: EdgeCollection, point: P) {
       return last;
     }
   }, null);
-  console.log({ closestDistance });
   return closestEdge;
 }
 
