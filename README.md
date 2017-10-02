@@ -19,11 +19,11 @@ Tool for exploring and playing around with network graphs.
 ## Roadmap
 
 - [ ] Decide on format for storing networks
-- [ ] Make canvas resize to size of viewport - maybe use requestAnimationFrame
+- [x] Make canvas resize to size of viewport - maybe use requestAnimationFrame
 - [ ] Optionally also 'zoom' in or out virtually depending on viewport size
 - [x] Colour nodes and edges
-- [ ] Allow user to create new nodes
-- [ ] Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
+- [x] Allow user to create new nodes
+- [x] Allow user to create new edges between nodes (by clicking on node's edge and dragging to another one)
 - [ ] Create import tool
 - [ ] create connectors to interface with import tool - e.g. import friends list from FB or Twitter followers network
 - [x] Create directed edges, with arrow to display direction
