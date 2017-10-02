@@ -77,6 +77,10 @@ class Point extends P {
   isWithinRadius(point: Point, radius: number) {
     return isWithinRadius(this, point, radius);
   }
+
+  distanceToLine(lineA: Point, lineB: Point): number {
+    return shortestDistanceToLine(this, lineA, lineB);
+  }
 }
 
 export function addVec(vecA: Point, vecB: Point): Point {
@@ -98,7 +102,7 @@ export function divideVec(vec: Point, divisor: number): Point {
 }
 
 export const sqr = (num: number) => num * num;
-export const { sqrt, random, floor, sin, cos, tan, pow, PI } = Math;
+export const { sqrt, random, abs, floor, sin, cos, tan, pow, PI } = Math;
 
 export function addLength(vector: Point, length: number): Point {
   const origLen = getVectorLen(vector);
@@ -183,6 +187,23 @@ function rotate(vector: Point, degrees: number) {
 
 export function isWithinRadius(from: Point, to: Point, radius: number) {
   return getDistance(from, to) < radius;
+}
+
+export function shortestDistanceToLine(
+  point: Point,
+  lineA: Point,
+  lineB: Point
+): number {
+  const { x, y } = point;
+  const top = abs(
+    (lineB.y - lineA.y) * x -
+      (lineB.x - lineA.x) * y +
+      lineB.x * lineA.y -
+      lineB.y * lineA.x
+  );
+  const bottom = sqrt(sqr(lineB.y - lineA.y) + sqr(lineB.x - lineA.x));
+
+  return top / bottom;
 }
 
 export function combineVectors(vectors: Point[]): Point {

@@ -4,8 +4,8 @@ import VertexCollection from "./VertexCollection";
 import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import EdgeCollection from "./EdgeCollection";
-import { vertexRadius, borderWidth } from "./config";
-import { getClosestVertex } from "./helpers";
+import { vertexRadius, borderWidth, edgeWidth } from "./config";
+import { getClosestVertex, distanceFromEdge, getClosestEdge } from "./helpers";
 import find from "lodash/find";
 
 const bodyRadius = vertexRadius - borderWidth / 2;
@@ -34,15 +34,19 @@ enum vertexPart {
 
 interface TouchInfo {
   vertex: Vertex | null;
+  edge: Edge | null;
   touchedPart?: vertexPart;
 }
 
 function getTouchInfo(
   vertices: VertexCollection,
+  edges: EdgeCollection,
   touchPoint: P,
   excludeVertex?: Vertex
 ): TouchInfo {
   const vertex = getClosestVertex(vertices, touchPoint, excludeVertex);
+
+  const edge = getClosestEdge(edges, touchPoint);
 
   if (vertex) {
     const distance = vertex.position.getDistance(touchPoint);
@@ -51,10 +55,17 @@ function getTouchInfo(
     if (isInsideBorder) {
       const isInsideBody = distance < bodyRadius;
       const touchedPart = isInsideBody ? vertexPart.body : vertexPart.border;
-      return { vertex, touchedPart };
+      return { vertex, edge: null, touchedPart };
+    } else if (edge) {
+      const distance = distanceFromEdge(touchPoint, edge);
+      const isOnEdge = distance < edgeWidth;
+      if (isOnEdge) {
+        return { vertex: null, edge };
+      }
     }
   }
-  return { vertex: null };
+
+  return { vertex: null, edge: null };
 }
 
 // universal stuff for creating new vertex
@@ -113,7 +124,11 @@ function deleteVertex(
   vertices.delete(vertex);
 }
 
-function handlers(
+function deleteEdge(edge: Edge, edges: EdgeCollection) {
+  edges.delete(edge);
+}
+
+function handlersFactory(
   canvas: HTMLCanvasElement,
   vertices: VertexCollection,
   edges: EdgeCollection,
@@ -128,7 +143,7 @@ function handlers(
       const touch = changedTouches[i];
 
       const touchPoint = getTouchPos(canvas, touch);
-      const touchInfo = getTouchInfo(vertices, touchPoint);
+      const touchInfo = getTouchInfo(vertices, edges, touchPoint);
       const { vertex, touchedPart } = touchInfo;
 
       const touchedVertexCreator =
@@ -222,9 +237,8 @@ function handlers(
 
   function mouseStart(event: MouseEvent) {
     event.preventDefault();
-    console.log("click started");
     const touchPoint = getTouchPos(canvas, event);
-    const touchInfo = getTouchInfo(vertices, touchPoint);
+    const touchInfo = getTouchInfo(vertices, edges, touchPoint);
     const { vertex, touchedPart } = touchInfo;
 
     const touchedVertexCreator =
@@ -306,7 +320,26 @@ function handlers(
     click.item = null;
   }
 
-  return { touchStart, touchMove, touchEnd, mouseStart, mouseMove, mouseEnd };
+  function doubleClick(event: MouseEvent) {
+    const touchPoint = getTouchPos(canvas, event);
+    const touchInfo = getTouchInfo(vertices, edges, touchPoint);
+    const { vertex, edge, touchedPart } = touchInfo;
+    if (vertex && touchedPart === vertexPart.body) {
+      deleteVertex(vertex, vertices, edges);
+    } else if (edge) {
+      deleteEdge(edge, edges);
+    }
+  }
+
+  return {
+    touchStart,
+    touchMove,
+    touchEnd,
+    mouseStart,
+    mouseMove,
+    mouseEnd,
+    doubleClick
+  };
 }
 
 function getTouchPos(canvas: HTMLCanvasElement, touch: Touch | MouseEvent) {
@@ -315,4 +348,4 @@ function getTouchPos(canvas: HTMLCanvasElement, touch: Touch | MouseEvent) {
   return new P(touch.clientX - rect.left, touch.clientY - rect.top);
 }
 
-export default handlers;
+export default handlersFactory;

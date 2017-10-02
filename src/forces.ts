@@ -37,7 +37,7 @@ import {
   ExternalNode,
   isInternalNode,
   Square
-} from "./utils";
+} from "./forceUtils";
 
 const { min, max } = Math;
 const fps = 60;
