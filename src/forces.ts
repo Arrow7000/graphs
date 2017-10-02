@@ -215,7 +215,6 @@ function getLargestSquare(vertices: Vertex[]): Square {
 }
 
 function cap(num: number, limit: number, isLowerBound: boolean): number {
-  // return isLowerBound ? (num < limit ? limit : num) : (num > limit ? limit : num);
   if (isLowerBound) {
     return num < limit ? limit : num;
   }

@@ -54,8 +54,6 @@ const nodesWindow = 300;
 const maxPrerenderTime = 1000; // ms
 const maxAvgMomentumLen = 2.5;
 
-import * as network from "./network";
-
 const vertexCreator = new VertexCreator(50, 50);
 
 const vertices = new VertexCollection(
@@ -78,16 +76,6 @@ const edgeArray = range(30)
   .filter(item => item !== null);
 
 const edges = new EdgeCollection(<Edge[]>edgeArray);
-
-// const nodes = network.nodes.map(() => {
-//     const x = (side - window) / 2 + random() * window;
-//     const y = (side - window) / 2 + random() * window;
-//     return new Vertex(x, y);
-// });
-
-// const edges = network.edges.map(([from, to]) => {
-//     return new Edge(nodes[from], nodes[to]);
-// });
 
 const {
   touchStart,
