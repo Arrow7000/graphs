@@ -33,6 +33,7 @@ class VertexCollection {
     const array = map(this.vertices, vertex => vertex);
     return array;
   }
+
   getRandom(): Vertex {
     const ids = Object.keys(this.vertices);
     const chosenIndex = floor(random() * ids.length);

@@ -13,6 +13,10 @@ import {
 class VertexCreator {
   position: P;
 
+  /**
+   * @TODO
+   * - Make constructor accept getter function for dynamic values - eg position of vertexCreator relative to edge of viewport
+   */
   constructor(x: number, y: number);
   constructor(point: P);
   constructor();
