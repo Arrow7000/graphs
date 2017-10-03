@@ -1,7 +1,20 @@
 import React, { Component } from "react";
 
-class Dashboard extends Component {
+import Vertex from "./graphs/Vertex";
+import VertexCollection from "./graphs/VertexCollection";
+import Edge from "./graphs/Edge";
+import EdgeCollection from "./graphs/EdgeCollection";
+
+class Dashboard extends Component<
+  {
+    edges: EdgeCollection;
+    vertices: VertexCollection;
+  },
+  {}
+> {
   render() {
+    const { edges, vertices } = this.props;
+
     return (
       <div className="dashboard">
         <div className="card">
@@ -9,7 +22,11 @@ class Dashboard extends Component {
             <p className="card-header-title">Dashboard</p>
           </header>
           <div className="card-content">
-            <div className="content">Stuff goes in here</div>
+            <div className="content">
+              <h4>Current network</h4>
+              <p>{edges.length} edges</p>
+              <p>{vertices.length} vertices</p>
+            </div>
           </div>
           <footer className="card-footer">
             <a href="#" className="card-footer-item">
