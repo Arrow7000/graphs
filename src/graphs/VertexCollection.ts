@@ -4,6 +4,7 @@ import map from "lodash/map";
 
 class VertexCollection {
   private vertices: { [id: string]: Vertex };
+  public length: number;
 
   constructor(vertices?: Vertex[]) {
     this.vertices = {};
@@ -13,12 +14,17 @@ class VertexCollection {
         const { id } = vertex;
         this.vertices[id] = vertex;
       }
+
+      this.length = vertices.length;
     }
+    this.length = 0;
   }
 
   push(vertex: Vertex) {
     const { id } = vertex;
     this.vertices[id] = vertex;
+
+    this.length += 1;
   }
 
   delete(vertex: Vertex);
@@ -27,6 +33,7 @@ class VertexCollection {
     const id = vertexOrId instanceof Vertex ? vertexOrId.id : vertexOrId;
 
     delete this.vertices[id];
+    this.length -= 1;
   }
 
   toArray() {

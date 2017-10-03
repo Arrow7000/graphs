@@ -3,6 +3,7 @@ import map from "lodash/map";
 
 class EdgeCollection {
   private edges: { [id: string]: Edge };
+  public length: number;
 
   constructor(edges?: Edge[]) {
     this.edges = {};
@@ -12,12 +13,17 @@ class EdgeCollection {
         const { id } = edge;
         this.edges[id] = edge;
       }
+
+      this.length = edges.length;
     }
+    this.length = 0;
   }
 
   push(edge: Edge) {
     const { id } = edge;
     this.edges[id] = edge;
+
+    this.length += 1;
   }
 
   delete(edge: Edge);
@@ -26,6 +32,8 @@ class EdgeCollection {
     const id = edgeOrId instanceof Edge ? edgeOrId.id : edgeOrId;
 
     delete this.edges[id];
+
+    this.length -= 1;
   }
 
   toArray() {
