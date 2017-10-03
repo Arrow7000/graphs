@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  entry: "./src/index.ts",
+  entry: "./src/index.tsx",
   output: {
     path: path.resolve(__dirname, "public", "dist"),
     filename: "bundle.js"
@@ -12,7 +12,7 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         loader: "babel-loader",
         query: {
           presets: ["es2017"],
@@ -23,7 +23,7 @@ module.exports = {
         }
       },
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         loader: "awesome-typescript-loader"
       },
       {
@@ -48,5 +48,5 @@ module.exports = {
     port: process.env.PORT || 9000,
     open: true
   },
-  resolve: { extensions: [".js", ".ts", ".css"] }
+  resolve: { extensions: [".js", ".jsx", ".ts", ".tsx", ".css"] }
 };
