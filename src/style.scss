@@ -22,10 +22,10 @@ body {
   grid-area: dashboard;
   margin: 25px;
   z-index: 1;
-  //   background-color: rgba(0, 72, 255, 0.75);
+  // background-color: rgba(0, 72, 255, 0.75);
 }
 
-#canvas {
+.canvas {
   grid-column: 1 / span 2;
   grid-row: 1 / span 2;
   width: 100%;
