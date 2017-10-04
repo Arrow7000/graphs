@@ -2,9 +2,12 @@ import Vertex from "./Vertex";
 import { floor, random } from "./Point";
 import map from "lodash/map";
 
+type voidFunc = () => void;
+
 class VertexCollection {
   private vertices: { [id: string]: Vertex };
   public length: number;
+  private subscribers: voidFunc[];
 
   constructor(vertices?: Vertex[]) {
     this.vertices = {};
@@ -16,8 +19,11 @@ class VertexCollection {
       }
 
       this.length = vertices.length;
+    } else {
+      this.length = 0;
     }
-    this.length = 0;
+
+    this.subscribers = [];
   }
 
   push(vertex: Vertex) {
@@ -25,6 +31,7 @@ class VertexCollection {
     this.vertices[id] = vertex;
 
     this.length += 1;
+    this.change();
   }
 
   delete(vertex: Vertex);
@@ -34,6 +41,7 @@ class VertexCollection {
 
     delete this.vertices[id];
     this.length -= 1;
+    this.change();
   }
 
   toArray() {
@@ -46,6 +54,14 @@ class VertexCollection {
     const chosenIndex = floor(random() * ids.length);
     const chosenId = ids[chosenIndex];
     return this.vertices[chosenId] || null;
+  }
+
+  onChange(func: voidFunc) {
+    this.subscribers.push(func);
+  }
+
+  private change() {
+    this.subscribers.forEach(func => func());
   }
 }
 
