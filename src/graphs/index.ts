@@ -20,7 +20,7 @@ import handlersFactory from "./touchHandlers";
 import "bulma/css/bulma.css";
 import "./style.scss";
 
-const { random } = Math;
+const { random, round } = Math;
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const ctx = <CanvasRenderingContext2D>canvas.getContext("2d");
@@ -50,7 +50,7 @@ function canvasResize() {
 
 canvasResize();
 
-const side = Math.min(getWidth(), getHeight());
+// const side = Math.min(getWidth(), getHeight());
 const nodesWindow = 300;
 
 // const maxPrerenderLoops = 200;
@@ -103,8 +103,6 @@ canvas.addEventListener("mousemove", mouseMove, false);
 canvas.addEventListener("dblclick", doubleClick, false);
 
 window.addEventListener("resize", canvasResize, false);
-
-const { round } = Math;
 
 function update(visible = true) {
   // `visible` param controls whether render method gets called

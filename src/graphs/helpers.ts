@@ -30,7 +30,9 @@ export function getClosestVertex(
 ): Vertex | null {
   let closestDistance = Infinity;
   const closestVertex = vertices.toArray().reduce((last, vertex) => {
-    if (vertex === excludeVertex) return last;
+    if (vertex === excludeVertex) {
+      return last;
+    }
 
     const distance = vertex.position.getDistance(point);
     if (distance < closestDistance) {

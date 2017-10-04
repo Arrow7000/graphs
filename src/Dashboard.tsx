@@ -24,8 +24,8 @@ class Dashboard extends Component<
           <div className="card-content">
             <div className="content">
               <h4>Current network</h4>
-              <p>{edges.length} edges</p>
               <p>{vertices.length} vertices</p>
+              <p>{edges.length} edges</p>
             </div>
           </div>
           <footer className="card-footer">
