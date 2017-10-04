@@ -7,7 +7,9 @@ import EdgeCollection from "./graphs/EdgeCollection";
 
 const { random } = Math;
 
-function initNetwork(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+const defaultSize = 100;
+
+function initNetwork() {
   // Closures
   let centerPoint = new P();
   let widthProp = 0;
@@ -19,15 +21,22 @@ function initNetwork(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
   const getHeight = () => heightProp;
 
   // reassign closures
-  function canvasResize() {
-    console.log("resizing");
-
-    widthProp = canvas.offsetWidth;
-    heightProp = canvas.offsetHeight;
+  function canvasResize(
+    canvas?: HTMLCanvasElement | null,
+    ctx?: CanvasRenderingContext2D | null
+  ) {
+    // console.log("resizing");
+    if (!canvas || !ctx) {
+      // debugger;
+    }
+    widthProp = canvas ? canvas.offsetWidth : defaultSize;
+    heightProp = canvas ? canvas.offsetHeight : defaultSize;
     centerPoint = new P(widthProp / 2, heightProp / 2);
 
-    ctx.canvas.width = widthProp;
-    ctx.canvas.height = heightProp;
+    if (ctx) {
+      ctx.canvas.width = widthProp;
+      ctx.canvas.height = heightProp;
+    }
   }
 
   canvasResize();
@@ -55,9 +64,14 @@ function initNetwork(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
 
   const edges = new EdgeCollection(<Edge[]>edgeArray);
 
-  const network = { vertices, edges };
-
-  return network;
+  return {
+    vertices,
+    edges,
+    canvasResize,
+    getCenter,
+    getWidth,
+    getHeight
+  };
 }
 
 export default initNetwork;
