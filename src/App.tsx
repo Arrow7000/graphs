@@ -1,27 +1,25 @@
 import React, { Component } from "react";
 import Dashboard from "./Dashboard";
-import Canvas from "./Canvas";
+import Canvas, { EventHandlers } from "./Canvas";
 import each from "lodash/each";
 import {
   applyElectrostatic,
   applySpring,
-  applyCenterMovement,
-  boxForce
+  applyCenterMovement
+  // boxForce
 } from "./graphs/forces";
 import { Updater } from "./graphs/helpers";
 import handlersFactory from "./graphs/touchHandlers";
 import VertexCreator from "./graphs/VertexCreator";
+import P from "./graphs/Point";
 
 import initNetwork from "./initNetwork";
-const {
-  vertices,
-  edges,
-  canvasResize,
-  getWidth,
-  getHeight,
-  getCenter
-} = initNetwork();
-const vertexCreator = new VertexCreator(getWidth() - 50, getHeight() - 50);
+
+const defaultSize = 100;
+
+const { vertices, edges } = initNetwork(defaultSize);
+
+const vertexCreator = new VertexCreator(50, 50); // @TODO: put it in right bottom corner
 
 import { vertexRadius, backgroundColour } from "./graphs/config";
 
@@ -30,100 +28,104 @@ const { random, round } = Math;
 const frame = 1000 / 60;
 
 class App extends Component {
-  canvas: HTMLCanvasElement | null;
   ctx: CanvasRenderingContext2D | null;
+
+  width: number;
+  height: number;
+  center: P;
+
+  touchStart: (event: TouchEvent) => void;
+  touchMove: (event: TouchEvent) => void;
+  touchEnd: (event: TouchEvent) => void;
+  mouseStart: (event: MouseEvent) => void;
+  mouseMove: (event: MouseEvent) => void;
+  mouseEnd: (event: MouseEvent) => void;
+  doubleClick: (event: MouseEvent) => void;
 
   constructor() {
     super();
 
-    this.canvas = null;
+    // this.canvas = null;
     this.ctx = null;
 
-    this.setCanvas = this.setCanvas.bind(this);
+    // this.setCanvas = this.setCanvas.bind(this);
     this.setCtx = this.setCtx.bind(this);
+    this.ctxSet = this.ctxSet.bind(this);
     this.update = this.update.bind(this);
+    this.setSize = this.setSize.bind(this);
+    // this.resizeThisCanvas = this.resizeThisCanvas.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
+
+    this.setSize(defaultSize, defaultSize);
   }
 
   componentDidMount() {
-    window.addEventListener("resize", this.resizeThisCanvas, false);
-
     vertices.onChange(this.forceUpdate);
     edges.onChange(this.forceUpdate);
   }
 
-  ctxSet() {
-    const { ctx, canvas, update } = this;
+  setSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    this.center = new P(width / 2, height / 2);
+  }
+
+  ctxSet(width: number, height: number) {
+    const { ctx, update } = this;
     console.log("running ctxSet");
 
-    if (ctx && canvas) {
-      console.log("initial canvas resize:", getWidth(), getHeight());
-      this.resizeThisCanvas();
+    this.setSize(width, height);
+
+    if (ctx) {
+      console.log("initial canvas resize:", width, height);
+      // this.resizeThisCanvas();
       ctx.beginPath();
       ctx.fillStyle = backgroundColour;
-      ctx.fillRect(0, 0, getWidth(), getHeight());
+      ctx.fillRect(0, 0, width, height);
 
-      const {
-        touchStart,
-        touchMove,
-        touchEnd,
-        mouseStart,
-        mouseMove,
-        mouseEnd,
-        doubleClick
-      } = handlersFactory(canvas, vertices, edges, vertexCreator);
+      // const {
+      //   touchStart,
+      //   touchMove,
+      //   touchEnd,
+      //   mouseStart,
+      //   mouseMove,
+      //   mouseEnd,
+      //   doubleClick
+      // } = handlersFactory(canvas, vertices, edges, vertexCreator);
+      // console.log(touchStart);
+      // this.touchStart = touchStart.bind(this);
+      // console.log(this.touchStart);
+      // this.touchMove = touchMove.bind(this);
+      // this.touchEnd = touchEnd.bind(this);
+      // this.mouseStart = mouseStart.bind(this);
+      // this.mouseMove = mouseMove.bind(this);
+      // this.mouseEnd = mouseEnd.bind(this);
+      // this.doubleClick = doubleClick.bind(this);
 
-      canvas.addEventListener("touchstart", touchStart, false);
-      canvas.addEventListener("touchend", touchEnd, false);
-      canvas.addEventListener("touchcancel", touchEnd, false);
-      canvas.addEventListener("touchmove", touchMove, false);
-
-      canvas.addEventListener("mousedown", mouseStart, false);
-      canvas.addEventListener("mouseup", mouseEnd, false);
-      canvas.addEventListener("mouseleave", mouseEnd, false);
-      canvas.addEventListener("mousemove", mouseMove, false);
-
-      canvas.addEventListener("dblclick", doubleClick, false);
-
-      Updater(getWidth(), getHeight(), ctx, update);
+      Updater(width, height, ctx, update);
     }
   }
 
-  resizeThisCanvas() {
-    // @TODO: figure out why the fuck getWidth and getHeight are returning 100 after this.canvas and this.ctx have been set
-    console.log("resizing canvas", getWidth(), getHeight());
-    if (!this.canvas || !this.ctx) {
-      // debugger;
-    }
-    canvasResize(this.canvas, this.ctx);
-  }
-
-  setCanvas(canvas: HTMLCanvasElement | null) {
-    console.log("setting canvas");
-    if (canvas) {
-      this.canvas = canvas;
-    }
-  }
-  setCtx(ctx: CanvasRenderingContext2D | null) {
+  setCtx(ctx: CanvasRenderingContext2D | null, width: number, height: number) {
     console.log("setting ctx");
     if (ctx) {
       this.ctx = ctx;
 
-      this.ctxSet();
+      this.ctxSet(width, height);
     }
   }
 
   update(visible = true) {
-    const { ctx } = this;
+    const { ctx, width, height, center } = this;
     if (ctx) {
       // `visible` param controls whether render method gets called
       ctx.beginPath();
       ctx.fillStyle = backgroundColour;
-      ctx.fillRect(0, 0, getWidth(), getHeight());
+      ctx.fillRect(0, 0, width, height);
 
       applyElectrostatic(vertices.toArray());
       applySpring(edges.toArray());
-      applyCenterMovement(vertices.toArray(), getCenter());
+      applyCenterMovement(vertices.toArray(), center);
       // boxForce(vertices.toArray(), new P(), new P(getWidth(), getHeight()));
 
       each(edges.toArray(), edge => edge.render(ctx));
@@ -144,14 +146,34 @@ class App extends Component {
   }
 
   render() {
+    const {
+      touchStart,
+      touchMove,
+      touchEnd,
+      mouseStart,
+      mouseMove,
+      mouseEnd,
+      doubleClick
+    } = this;
+    console.log(touchStart);
+
     return (
       <div className="grid-container">
         <Dashboard vertices={vertices} edges={edges} />
         <Canvas
+          onResize={this.setSize}
           vertices={vertices}
           edges={edges}
-          setCanvas={this.setCanvas}
           setCtx={this.setCtx}
+          touchStart={touchStart}
+          touchMove={touchMove}
+          touchEnd={touchEnd}
+          touchCancel={touchEnd}
+          mouseDown={mouseStart}
+          mouseMove={mouseMove}
+          mouseUp={mouseEnd}
+          mouseLeave={mouseEnd}
+          doubleClick={doubleClick}
         />
       </div>
     );

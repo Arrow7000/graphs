@@ -7,46 +7,41 @@ import EdgeCollection from "./graphs/EdgeCollection";
 
 const { random } = Math;
 
-const defaultSize = 100;
+// const defaultSize = 100;
+const nodesWindow = 300;
 
-function initNetwork() {
+function initNetwork(defaultSize = 100) {
   // Closures
-  let centerPoint = new P();
-  let widthProp = 0;
-  let heightProp = 0;
+  let widthProp = defaultSize;
+  let heightProp = defaultSize;
+  let centerPoint = new P(widthProp / 1, heightProp / 2);
 
-  // closure getters
-  const getCenter = () => centerPoint;
-  const getWidth = () => widthProp;
-  const getHeight = () => heightProp;
+  // // closure getters
+  // const getCenter = () => centerPoint;
+  // const getWidth = () => widthProp;
+  // const getHeight = () => heightProp;
 
   // reassign closures
-  function canvasResize(
-    canvas?: HTMLCanvasElement | null,
-    ctx?: CanvasRenderingContext2D | null
-  ) {
-    // console.log("resizing");
-    if (!canvas || !ctx) {
-      // debugger;
-    }
-    widthProp = canvas ? canvas.offsetWidth : defaultSize;
-    heightProp = canvas ? canvas.offsetHeight : defaultSize;
-    centerPoint = new P(widthProp / 2, heightProp / 2);
+  // function canvasResize(canvas?: HTMLCanvasElement | null) {
+  //   // console.log("resizing");
 
-    if (ctx) {
-      ctx.canvas.width = widthProp;
-      ctx.canvas.height = heightProp;
-    }
-  }
+  //   widthProp = canvas ? canvas.offsetWidth : defaultSize;
+  //   heightProp = canvas ? canvas.offsetHeight : defaultSize;
+  //   centerPoint = new P(widthProp / 2, heightProp / 2);
 
-  canvasResize();
+  //   // if (ctx) {
+  //   //   // This sets canvas pixel properties, so needs to be set somewhere
+  //   //   ctx.canvas.width = widthProp;
+  //   //   ctx.canvas.height = heightProp;
+  //   // }
+  // }
 
-  const nodesWindow = 300;
+  // canvasResize();
 
   const vertices = new VertexCollection(
     range(13).map(() => {
       return new Vertex(
-        getCenter().add(random() * nodesWindow - nodesWindow / 2)
+        centerPoint.add(random() * nodesWindow - nodesWindow / 2)
       );
     })
   );
@@ -66,11 +61,11 @@ function initNetwork() {
 
   return {
     vertices,
-    edges,
-    canvasResize,
-    getCenter,
-    getWidth,
-    getHeight
+    edges
+    // canvasResize,
+    // getCenter,
+    // getWidth,
+    // getHeight
   };
 }
 
