@@ -180,14 +180,14 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
   }
 }
 
-export function boxForce(vertices: Vertex[], origin: P, end: P) {
-  each(vertices, vertex => {
-    const nextPosition = vertex.position.add(vertex.velocity);
-    const toBound = toBox(nextPosition, origin, end);
+// export function boxForce(vertices: Vertex[], origin: P, end: P) {
+//   each(vertices, vertex => {
+//     const nextPosition = vertex.position.add(vertex.velocity);
+//     const toBound = toBox(nextPosition, origin, end);
 
-    vertex.applyMovement(toBound);
-  });
-}
+//     vertex.applyMovement(toBound);
+//   });
+// }
 
 function getLargestSquare(vertices: Vertex[]): Square {
   const marginPoint = new P(50, 50);

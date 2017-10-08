@@ -6,6 +6,7 @@ type voidFunc = () => void;
 
 class VertexCollection {
   private vertices: { [id: string]: Vertex };
+  // @TODO if more than 2 places for `length` mutation, make it gettable property
   public length: number;
   private subscribers: voidFunc[];
 

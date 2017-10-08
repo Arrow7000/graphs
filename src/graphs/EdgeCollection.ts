@@ -5,6 +5,7 @@ type voidFunc = () => void;
 
 class EdgeCollection {
   private edges: { [id: string]: Edge };
+  // @TODO if more than 2 places for `length` mutation, make it gettable property
   public length: number;
   private subscribers: voidFunc[];
 
