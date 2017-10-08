@@ -45,15 +45,29 @@ class App extends Component {
   constructor() {
     super();
 
-    // this.canvas = null;
     this.ctx = null;
 
-    // this.setCanvas = this.setCanvas.bind(this);
+    const {
+      touchStart,
+      touchMove,
+      touchEnd,
+      mouseStart,
+      mouseMove,
+      mouseEnd,
+      doubleClick
+    } = handlersFactory(vertices, edges, vertexCreator);
+    this.touchStart = touchStart.bind(this);
+    this.touchMove = touchMove.bind(this);
+    this.touchEnd = touchEnd.bind(this);
+    this.mouseStart = mouseStart.bind(this);
+    this.mouseMove = mouseMove.bind(this);
+    this.mouseEnd = mouseEnd.bind(this);
+    this.doubleClick = doubleClick.bind(this);
+
     this.setCtx = this.setCtx.bind(this);
     this.ctxSet = this.ctxSet.bind(this);
     this.update = this.update.bind(this);
     this.setSize = this.setSize.bind(this);
-    // this.resizeThisCanvas = this.resizeThisCanvas.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
 
     this.setSize(defaultSize, defaultSize);
@@ -72,47 +86,22 @@ class App extends Component {
 
   ctxSet(width: number, height: number) {
     const { ctx, update } = this;
-    console.log("running ctxSet");
 
     this.setSize(width, height);
 
     if (ctx) {
-      console.log("initial canvas resize:", width, height);
-      // this.resizeThisCanvas();
       ctx.beginPath();
       ctx.fillStyle = backgroundColour;
       ctx.fillRect(0, 0, width, height);
-
-      // const {
-      //   touchStart,
-      //   touchMove,
-      //   touchEnd,
-      //   mouseStart,
-      //   mouseMove,
-      //   mouseEnd,
-      //   doubleClick
-      // } = handlersFactory(canvas, vertices, edges, vertexCreator);
-      // console.log(touchStart);
-      // this.touchStart = touchStart.bind(this);
-      // console.log(this.touchStart);
-      // this.touchMove = touchMove.bind(this);
-      // this.touchEnd = touchEnd.bind(this);
-      // this.mouseStart = mouseStart.bind(this);
-      // this.mouseMove = mouseMove.bind(this);
-      // this.mouseEnd = mouseEnd.bind(this);
-      // this.doubleClick = doubleClick.bind(this);
 
       Updater(width, height, ctx, update);
     }
   }
 
-  setCtx(ctx: CanvasRenderingContext2D | null, width: number, height: number) {
-    console.log("setting ctx");
-    if (ctx) {
-      this.ctx = ctx;
+  setCtx(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    this.ctx = ctx;
 
-      this.ctxSet(width, height);
-    }
+    this.ctxSet(width, height);
   }
 
   update(visible = true) {
@@ -155,7 +144,6 @@ class App extends Component {
       mouseEnd,
       doubleClick
     } = this;
-    console.log(touchStart);
 
     return (
       <div className="grid-container">

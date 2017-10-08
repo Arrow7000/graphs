@@ -130,12 +130,11 @@ function deleteEdge(edge: Edge, edges: EdgeCollection) {
 }
 
 function handlersFactory(
-  canvas: HTMLCanvasElement,
   vertices: VertexCollection,
   edges: EdgeCollection,
   vertexCreator: VertexCreator
 ) {
-  function touchStart(event: TouchEvent) {
+  function touchStart(event: TouchEvent, canvas: HTMLCanvasElement) {
     event.preventDefault();
 
     const { changedTouches } = event;
@@ -170,7 +169,7 @@ function handlersFactory(
     }
   }
 
-  function touchMove(event: TouchEvent) {
+  function touchMove(event: TouchEvent, canvas: HTMLCanvasElement) {
     event.preventDefault();
 
     const { changedTouches } = event;
@@ -188,7 +187,7 @@ function handlersFactory(
     }
   }
 
-  function touchEnd(event: TouchEvent) {
+  function touchEnd(event: TouchEvent, canvas: HTMLCanvasElement) {
     event.preventDefault();
 
     const { changedTouches } = event;
@@ -236,7 +235,7 @@ function handlersFactory(
     }
   }
 
-  function mouseStart(event: MouseEvent) {
+  function mouseStart(event: MouseEvent, canvas: HTMLCanvasElement) {
     event.preventDefault();
     const touchPoint = getTouchPos(canvas, event);
     const touchInfo = getTouchInfo(vertices, edges, touchPoint);
@@ -264,7 +263,7 @@ function handlersFactory(
     }
   }
 
-  function mouseMove(event: MouseEvent) {
+  function mouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
     const { item, offset } = click;
     if (item) {
       event.preventDefault();
@@ -278,7 +277,7 @@ function handlersFactory(
     }
   }
 
-  function mouseEnd(event: MouseEvent) {
+  function mouseEnd(event: MouseEvent, canvas: HTMLCanvasElement) {
     event.preventDefault();
 
     const { item } = click;
@@ -321,7 +320,7 @@ function handlersFactory(
     click.item = null;
   }
 
-  function doubleClick(event: MouseEvent) {
+  function doubleClick(event: MouseEvent, canvas: HTMLCanvasElement) {
     const touchPoint = getTouchPos(canvas, event);
     const touchInfo = getTouchInfo(vertices, edges, touchPoint);
     const { vertex, edge, touchedPart } = touchInfo;
@@ -344,7 +343,7 @@ function handlersFactory(
 }
 
 function getTouchPos(canvas: HTMLCanvasElement, touch: Touch | MouseEvent) {
-  var rect = canvas.getBoundingClientRect();
+  const rect = canvas.getBoundingClientRect();
 
   return new P(touch.clientX - rect.left, touch.clientY - rect.top);
 }

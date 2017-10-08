@@ -3,33 +3,32 @@ import React, { Component } from "react";
 import VertexCollection from "./graphs/VertexCollection";
 import EdgeCollection from "./graphs/EdgeCollection";
 
-interface Size {
-  width: number;
-  height: number;
-}
+type CanvEl = HTMLCanvasElement;
 
 export interface EventHandlers {
-  touchStart: ((event: TouchEvent) => void) | undefined;
-  touchMove: ((event: TouchEvent) => void) | undefined;
-  touchEnd: ((event: TouchEvent) => void) | undefined;
-  touchCancel: ((event: TouchEvent) => void) | undefined;
+  touchStart: ((event: TouchEvent, canvas: CanvEl) => void) | undefined;
+  touchMove: ((event: TouchEvent, canvas: CanvEl) => void) | undefined;
+  touchEnd: ((event: TouchEvent, canvas: CanvEl) => void) | undefined;
+  touchCancel: ((event: TouchEvent, canvas: CanvEl) => void) | undefined;
 
-  mouseDown: ((event: MouseEvent) => void) | undefined;
-  mouseMove: ((event: MouseEvent) => void) | undefined;
-  mouseUp: ((event: MouseEvent) => void) | undefined;
-  mouseLeave: ((event: MouseEvent) => void) | undefined;
+  mouseDown: ((event: MouseEvent, canvas: CanvEl) => void) | undefined;
+  mouseMove: ((event: MouseEvent, canvas: CanvEl) => void) | undefined;
+  mouseUp: ((event: MouseEvent, canvas: CanvEl) => void) | undefined;
+  mouseLeave: ((event: MouseEvent, canvas: CanvEl) => void) | undefined;
 
-  doubleClick: ((event: MouseEvent) => void) | undefined;
+  doubleClick: ((event: MouseEvent, canvas: CanvEl) => void) | undefined;
 }
 
 interface Props extends EventHandlers {
   vertices: VertexCollection;
   edges: EdgeCollection;
-  setCtx: (
-    ctx: CanvasRenderingContext2D | null,
-    width: number,
-    height: number
-  ) => void;
+  setCtx:
+    | ((
+        ctx: CanvasRenderingContext2D | null,
+        width: number,
+        height: number
+      ) => void)
+    | undefined;
   onResize: ((width: number, height: number) => void) | undefined;
 }
 
@@ -45,7 +44,6 @@ class Canvas extends Component<Props> {
   componentDidMount() {
     const { canvas } = this;
     const {
-      // setCanvas,
       setCtx,
 
       touchStart,
@@ -60,42 +58,73 @@ class Canvas extends Component<Props> {
 
       doubleClick
     } = this.props;
-    console.log("canvas mounted");
 
     if (canvas) {
-      console.log("canvas ref exists");
-      // if (touchStart) {
-      //   console.log("attaching touchstart event handler", touchStart);
-      //   canvas.addEventListener("touchstart", touchStart, false);
-      // }
-      // if (touchMove) {
-      //   canvas.addEventListener("touchmove", touchMove, false);
-      // }
-      // if (touchEnd) {
-      //   canvas.addEventListener("touchend", touchEnd, false);
-      // }
-      // if (touchCancel) {
-      //   canvas.addEventListener("touchcancel", touchCancel, false);
-      // }
+      if (touchStart) {
+        canvas.addEventListener(
+          "touchstart",
+          event => touchStart(event, canvas),
+          false
+        );
+      }
+      if (touchMove) {
+        canvas.addEventListener(
+          "touchmove",
+          event => touchMove(event, canvas),
+          false
+        );
+      }
+      if (touchEnd) {
+        canvas.addEventListener(
+          "touchend",
+          event => touchEnd(event, canvas),
+          false
+        );
+      }
+      if (touchCancel) {
+        canvas.addEventListener(
+          "touchcancel",
+          event => touchCancel(event, canvas),
+          false
+        );
+      }
 
-      // if (mouseDown) {
-      //   canvas.addEventListener("mousedown", mouseDown, false);
-      // }
-      // if (mouseMove) {
-      //   canvas.addEventListener("mouseMove", mouseMove, false);
-      // }
-      // if (mouseUp) {
-      //   canvas.addEventListener("mouseup", mouseUp, false);
-      // }
-      // if (mouseLeave) {
-      //   canvas.addEventListener("mouseleave", mouseLeave, false);
-      // }
+      if (mouseDown) {
+        canvas.addEventListener(
+          "mousedown",
+          event => mouseDown(event, canvas),
+          false
+        );
+      }
+      if (mouseMove) {
+        canvas.addEventListener(
+          "mousemove",
+          event => mouseMove(event, canvas),
+          false
+        );
+      }
+      if (mouseUp) {
+        canvas.addEventListener(
+          "mouseup",
+          event => mouseUp(event, canvas),
+          false
+        );
+      }
+      if (mouseLeave) {
+        canvas.addEventListener(
+          "mouseleave",
+          event => mouseLeave(event, canvas),
+          false
+        );
+      }
 
-      // if (doubleClick) {
-      //   canvas.addEventListener("dblclick", doubleClick, false);
-      // }
-
-      // setCanvas(canvas);
+      if (doubleClick) {
+        canvas.addEventListener(
+          "dblclick",
+          event => doubleClick(event, canvas),
+          false
+        );
+      }
 
       const width = canvas.offsetWidth;
       const height = canvas.offsetHeight;
@@ -105,14 +134,15 @@ class Canvas extends Component<Props> {
       this.onResize(); // initial sizing
       window.addEventListener("resize", this.onResize, false);
 
-      setCtx(this.ctx, width, height);
+      if (setCtx) {
+        setCtx(this.ctx, width, height);
+      }
     }
   }
 
   componentWillUnmount() {
     const { canvas } = this;
     const {
-      // setCanvas,
       setCtx,
 
       touchStart,
