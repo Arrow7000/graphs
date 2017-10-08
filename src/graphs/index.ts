@@ -9,8 +9,8 @@ import EdgeCollection from "./EdgeCollection";
 import {
   applyElectrostatic,
   applySpring,
-  applyCenterMovement,
-  boxForce
+  applyCenterMovement
+  // boxForce
 } from "./forces";
 import { getAvgMomentum } from "./forceUtils";
 import { vertexRadius, backgroundColour } from "./config";
@@ -88,19 +88,19 @@ const {
   mouseMove,
   mouseEnd,
   doubleClick
-} = handlersFactory(canvas, vertices, edges, vertexCreator);
+} = handlersFactory(vertices, edges, vertexCreator);
 
-canvas.addEventListener("touchstart", touchStart, false);
-canvas.addEventListener("touchend", touchEnd, false);
-canvas.addEventListener("touchcancel", touchEnd, false);
-canvas.addEventListener("touchmove", touchMove, false);
+// canvas.addEventListener("touchstart", touchStart, false);
+// canvas.addEventListener("touchend", touchEnd, false);
+// canvas.addEventListener("touchcancel", touchEnd, false);
+// canvas.addEventListener("touchmove", touchMove, false);
 
-canvas.addEventListener("mousedown", mouseStart, false);
-canvas.addEventListener("mouseup", mouseEnd, false);
-canvas.addEventListener("mouseleave", mouseEnd, false);
-canvas.addEventListener("mousemove", mouseMove, false);
+// canvas.addEventListener("mousedown", mouseStart, false);
+// canvas.addEventListener("mouseup", mouseEnd, false);
+// canvas.addEventListener("mouseleave", mouseEnd, false);
+// canvas.addEventListener("mousemove", mouseMove, false);
 
-canvas.addEventListener("dblclick", doubleClick, false);
+// canvas.addEventListener("dblclick", doubleClick, false);
 
 window.addEventListener("resize", canvasResize, false);
 
