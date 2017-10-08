@@ -8,24 +8,27 @@ import {
   applyCenterMovement
   // boxForce
 } from "./graphs/forces";
-import { Updater } from "./graphs/helpers";
+import { preRender, Updater } from "./graphs/helpers";
 import handlersFactory from "./graphs/touchHandlers";
 import VertexCreator from "./graphs/VertexCreator";
 import P from "./graphs/Point";
+import { getAvgMomentum } from "./graphs/forceUtils";
 
 import initNetwork from "./initNetwork";
 
 const defaultSize = 100;
+const vertexCreatorMargin = 100;
+
+const maxPrerenderTime = 1000; // ms
+const maxAvgMomentumLen = 2.5;
 
 const { vertices, edges } = initNetwork(defaultSize);
 
-const vertexCreator = new VertexCreator(50, 50); // @TODO: put it in right bottom corner
+const vertexCreator = new VertexCreator(); // @TODO: put it in right bottom corner
 
 import { vertexRadius, backgroundColour } from "./graphs/config";
 
 const { random, round } = Math;
-
-const frame = 1000 / 60;
 
 class App extends Component {
   ctx: CanvasRenderingContext2D | null;
@@ -34,13 +37,13 @@ class App extends Component {
   height: number;
   center: P;
 
-  touchStart: (event: TouchEvent) => void;
-  touchMove: (event: TouchEvent) => void;
-  touchEnd: (event: TouchEvent) => void;
-  mouseStart: (event: MouseEvent) => void;
-  mouseMove: (event: MouseEvent) => void;
-  mouseEnd: (event: MouseEvent) => void;
-  doubleClick: (event: MouseEvent) => void;
+  touchStart: (event: TouchEvent, canvas: HTMLCanvasElement) => void;
+  touchMove: (event: TouchEvent, canvas: HTMLCanvasElement) => void;
+  touchEnd: (event: TouchEvent, canvas: HTMLCanvasElement) => void;
+  mouseStart: (event: MouseEvent, canvas: HTMLCanvasElement) => void;
+  mouseMove: (event: MouseEvent, canvas: HTMLCanvasElement) => void;
+  mouseEnd: (event: MouseEvent, canvas: HTMLCanvasElement) => void;
+  doubleClick: (event: MouseEvent, canvas: HTMLCanvasElement) => void;
 
   constructor() {
     super();
@@ -56,6 +59,7 @@ class App extends Component {
       mouseEnd,
       doubleClick
     } = handlersFactory(vertices, edges, vertexCreator);
+
     this.touchStart = touchStart.bind(this);
     this.touchMove = touchMove.bind(this);
     this.touchEnd = touchEnd.bind(this);
@@ -64,10 +68,10 @@ class App extends Component {
     this.mouseEnd = mouseEnd.bind(this);
     this.doubleClick = doubleClick.bind(this);
 
+    this.setSize = this.setSize.bind(this);
     this.setCtx = this.setCtx.bind(this);
     this.ctxSet = this.ctxSet.bind(this);
     this.update = this.update.bind(this);
-    this.setSize = this.setSize.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
 
     this.setSize(defaultSize, defaultSize);
@@ -82,6 +86,10 @@ class App extends Component {
     this.width = width;
     this.height = height;
     this.center = new P(width / 2, height / 2);
+
+    vertexCreator.changePosition(
+      new P(width - vertexCreatorMargin, height - vertexCreatorMargin)
+    );
   }
 
   ctxSet(width: number, height: number) {
@@ -90,9 +98,13 @@ class App extends Component {
     this.setSize(width, height);
 
     if (ctx) {
-      ctx.beginPath();
-      ctx.fillStyle = backgroundColour;
-      ctx.fillRect(0, 0, width, height);
+      preRender(
+        vertices.toArray(),
+        getAvgMomentum,
+        update,
+        maxPrerenderTime,
+        maxAvgMomentumLen
+      );
 
       Updater(width, height, ctx, update);
     }

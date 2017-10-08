@@ -6,6 +6,34 @@ import P, { isP, floor, random } from "./Point";
 // import { edgeWidth } from "./config";
 import map from "lodash/map";
 
+export function preRender(
+  vertices: Vertex[],
+  getAvgMomentum: (vertices: Vertex[]) => number,
+  update: (visual?: boolean) => void,
+  maxPrerenderTime: number,
+  maxAvgMomentumLen: number
+) {
+  // Makes graph move around and lose some momentum before first render
+  let avgMomentum = 0;
+  let cycle = 0;
+
+  const t0 = performance.now();
+  do {
+    update(false);
+    avgMomentum = getAvgMomentum(vertices);
+    cycle++;
+
+    if (performance.now() - t0 > maxPrerenderTime) {
+      break;
+    }
+  } while (avgMomentum > maxAvgMomentumLen);
+  const t1 = performance.now();
+
+  console.info(
+    "Cycled " + cycle + " times before render, in " + (t1 - t0) + "ms"
+  );
+}
+
 export function Updater(
   width: number,
   height: number,

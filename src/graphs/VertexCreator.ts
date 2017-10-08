@@ -20,13 +20,18 @@ class VertexCreator {
   constructor(x: number, y: number);
   constructor(point: P);
   constructor();
-  constructor(xOrPoint?: P | number, yCoord?: number) {
-    this.position =
-      xOrPoint !== undefined
-        ? yCoord !== undefined
-          ? new P(<number>xOrPoint, yCoord)
-          : new P(<P>xOrPoint)
-        : new P();
+  constructor(xOrPoint: P | number = new P(), yCoord?: number) {
+    // this.position =
+    //   xOrPoint !== undefined
+    //     ? yCoord !== undefined
+    //       ? new P(<number>xOrPoint, yCoord)
+    //       : new P(<P>xOrPoint)
+    //     : new P();
+    this.position = yCoord ? new P(<number>xOrPoint, yCoord) : <P>xOrPoint;
+  }
+
+  changePosition(position: P) {
+    this.position = position;
   }
 
   render(ctx: CanvasRenderingContext2D) {
