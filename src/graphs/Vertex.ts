@@ -25,15 +25,10 @@ class Vertex {
   constructor(x: number, y: number);
   constructor(point: P);
   constructor();
-  constructor(xOrPoint?: P | number, yCoord?: number) {
+  constructor(xOrPoint: P | number = new P(), yCoord?: number) {
     this.id = uuid();
 
-    this.position =
-      xOrPoint !== undefined
-        ? yCoord !== undefined
-          ? new P(<number>xOrPoint, yCoord)
-          : new P(<P>xOrPoint)
-        : new P();
+    this.position = yCoord ? new P(<number>xOrPoint, yCoord) : <P>xOrPoint;
 
     this.velocity = new P();
     this.stress = 0;
@@ -48,6 +43,7 @@ class Vertex {
     return this.velocity.multiply(this.mass);
   }
 
+  // @Deprecated
   isOnEdge(point: P) {
     const inCircle = this.position.isWithinRadius(
       point,

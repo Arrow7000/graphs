@@ -7,36 +7,12 @@ import EdgeCollection from "./graphs/EdgeCollection";
 
 const { random } = Math;
 
-// const defaultSize = 100;
 const nodesWindow = 300;
 
 function initNetwork(defaultSize = 100) {
-  // Closures
-  let widthProp = defaultSize;
-  let heightProp = defaultSize;
-  let centerPoint = new P(widthProp / 1, heightProp / 2);
-
-  // // closure getters
-  // const getCenter = () => centerPoint;
-  // const getWidth = () => widthProp;
-  // const getHeight = () => heightProp;
-
-  // reassign closures
-  // function canvasResize(canvas?: HTMLCanvasElement | null) {
-  //   // console.log("resizing");
-
-  //   widthProp = canvas ? canvas.offsetWidth : defaultSize;
-  //   heightProp = canvas ? canvas.offsetHeight : defaultSize;
-  //   centerPoint = new P(widthProp / 2, heightProp / 2);
-
-  //   // if (ctx) {
-  //   //   // This sets canvas pixel properties, so needs to be set somewhere
-  //   //   ctx.canvas.width = widthProp;
-  //   //   ctx.canvas.height = heightProp;
-  //   // }
-  // }
-
-  // canvasResize();
+  const widthProp = defaultSize;
+  const heightProp = defaultSize;
+  const centerPoint = new P(widthProp / 1, heightProp / 2);
 
   const vertices = new VertexCollection(
     range(13).map(() => {
@@ -59,14 +35,7 @@ function initNetwork(defaultSize = 100) {
 
   const edges = new EdgeCollection(<Edge[]>edgeArray);
 
-  return {
-    vertices,
-    edges
-    // canvasResize,
-    // getCenter,
-    // getWidth,
-    // getHeight
-  };
+  return { vertices, edges };
 }
 
 export default initNetwork;
