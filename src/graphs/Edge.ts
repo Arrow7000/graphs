@@ -39,6 +39,17 @@ class Edge {
     this.vertices.b = vertex;
   }
 
+  get isConnected() {
+    return !isP(this.vertices.b);
+  }
+
+  get from() {
+    return this.vertices.a;
+  }
+  get to() {
+    return this.isConnected ? <Vertex>this.vertices.b : null;
+  }
+
   render(ctx: CanvasRenderingContext2D) {
     const { a, b } = this.vertices;
     const bPos = isP(b) ? b : b.position;

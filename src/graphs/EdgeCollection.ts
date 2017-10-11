@@ -1,26 +1,23 @@
 import Edge from "./Edge";
 import map from "lodash/map";
 
-type voidFunc = () => void;
+import { voidFunc, IdMap, itemsToObjById } from "./collectionHelpers";
 
 class EdgeCollection {
-  private edges: { [id: string]: Edge };
+  private edges: IdMap<Edge>;
   // @TODO if more than 2 places for `length` mutation, make it gettable property
-  public length: number;
   private subscribers: voidFunc[];
 
   constructor(edges?: Edge[]) {
     this.edges = {};
 
     if (edges) {
-      for (const edge of edges) {
-        const { id } = edge;
-        this.edges[id] = edge;
-      }
+      // for (const edge of edges) {
+      //   const { id } = edge;
+      //   this.edges[id] = edge;
+      // }
 
-      this.length = edges.length;
-    } else {
-      this.length = 0;
+      this.edges = itemsToObjById(edges);
     }
 
     this.subscribers = [];
@@ -30,18 +27,16 @@ class EdgeCollection {
     const { id } = edge;
     this.edges[id] = edge;
 
-    this.length += 1;
     this.change();
   }
 
-  delete(edge: Edge);
-  delete(edgeId: string);
-  delete(edgeOrId: Edge | string) {
+  delete(edge: Edge): void;
+  delete(edgeId: string): void;
+  delete(edgeOrId: Edge | string): void {
     const id = edgeOrId instanceof Edge ? edgeOrId.id : edgeOrId;
 
     delete this.edges[id];
 
-    this.length -= 1;
     this.change();
   }
 
@@ -50,8 +45,26 @@ class EdgeCollection {
     return array;
   }
 
+  replace(edges: Edge[]) {
+    this.edges = itemsToObjById(edges);
+
+    this.change();
+  }
+
+  get length() {
+    throw new Error(
+      "make replace a method on Network class, otherwise change doesnt propagate properly"
+    );
+    return this.toArray().length;
+  }
+
   onChange(func: voidFunc) {
     this.subscribers.push(func);
+  }
+
+  offChange(thisFunc: voidFunc) {
+    // unsubscribe from changes
+    this.subscribers = this.subscribers.filter(func => func !== thisFunc);
   }
 
   private change() {

@@ -2,16 +2,24 @@ import Vertex from "./Vertex";
 import Edge from "./Edge";
 import VertexCollection from "./VertexCollection";
 import EdgeCollection from "./EdgeCollection";
+import Network from "./Network";
 import P, { isP, floor, random } from "./Point";
 // import { edgeWidth } from "./config";
 import map from "lodash/map";
+import each from "lodash/each";
+import { getAvgMomentum } from "./forceUtils";
 
-export function preRender(
+// interface Network {
+//   vertices: VertexCollection;
+//   edges: EdgeCollection;
+// }
+
+export function layoutPreRender(
   vertices: Vertex[],
-  getAvgMomentum: (vertices: Vertex[]) => number,
   update: (visual?: boolean) => void,
   maxPrerenderTime: number,
-  maxAvgMomentumLen: number
+  maxAvgMomentumLen: number,
+  log = true
 ) {
   // Makes graph move around and lose some momentum before first render
   let avgMomentum = 0;
@@ -29,9 +37,11 @@ export function preRender(
   } while (avgMomentum > maxAvgMomentumLen);
   const t1 = performance.now();
 
-  console.info(
-    "Cycled " + cycle + " times before render, in " + (t1 - t0) + "ms"
-  );
+  if (log) {
+    console.info(
+      "Cycled " + cycle + " times before render, in " + (t1 - t0) + "ms"
+    );
+  }
 }
 
 export function Updater(
@@ -99,3 +109,66 @@ export function getClosestEdge(edges: EdgeCollection, point: P) {
 const uuidChunk = () => floor(random() * 1000000);
 export const uuid = () =>
   "" + uuidChunk() + "-" + uuidChunk() + "-" + uuidChunk();
+
+type SerialisedVertices = string[];
+interface SerialisedEdge {
+  from: string;
+  to: string;
+}
+
+interface SerialisedNetwork {
+  vertices: SerialisedVertices;
+  edges: SerialisedEdge[];
+}
+
+function serialiseNetwork(network: Network): SerialisedNetwork {
+  const { vertices, edges } = network;
+
+  const verticesSerial = vertices.toArray().map(vertex => vertex.id);
+  const edgesSerial = edges
+    .toArray()
+    .filter(edge => edge.isConnected)
+    .map(edge => {
+      const { from, to } = edge;
+      return { from: from.id, to: (to as Vertex).id };
+    });
+
+  return { vertices: verticesSerial, edges: edgesSerial };
+}
+
+export function storeNetwork(network: Network) {
+  const serialised = serialiseNetwork(network);
+  const stringified = JSON.stringify(serialised);
+
+  localStorage.setItem("network", stringified);
+}
+
+export function getNetwork(): Network | null {
+  const stringified = localStorage.getItem("network");
+  if (stringified) {
+    const parsed = <SerialisedNetwork>JSON.parse(stringified);
+
+    const { vertices, edges } = parsed;
+    const vertexArray = vertices.map(id => new Vertex(id));
+
+    // const vertexCollection = new VertexCollection(vertexArray);
+    const network = new Network(vertexArray);
+
+    each(edges, edge => {
+      const { from, to } = edge;
+      const a = network.getVertex(from);
+      const b = network.getVertex(to);
+
+      const newEdge = new Edge(a, b);
+      network.pushEdge(newEdge);
+    });
+
+    // const edgeCollection = new EdgeCollection(edgeArray);
+
+    // return { vertices: vertexCollection, edges: edgeCollection };
+
+    return network;
+  } else {
+    return null;
+  }
+}

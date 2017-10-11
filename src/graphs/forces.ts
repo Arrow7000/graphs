@@ -191,11 +191,8 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
 
 function getLargestSquare(vertices: Vertex[]): Square {
   const marginPoint = new P(50, 50);
-  /**
-   * @TODO
-   * - fix getting position of vertex at index 0 for when there's no vertices
-   */
-  const startPt = vertices[0].position;
+
+  const startPt = vertices.length > 0 ? vertices[0].position : new P();
 
   const origin: P = vertices
     .reduce((NWmost, vertex) => {

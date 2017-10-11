@@ -2,46 +2,46 @@ import Vertex from "./Vertex";
 import { floor, random } from "./Point";
 import map from "lodash/map";
 
-type voidFunc = () => void;
+import { voidFunc, IdMap, itemsToObjById } from "./collectionHelpers";
 
 class VertexCollection {
-  private vertices: { [id: string]: Vertex };
+  private vertices: IdMap<Vertex>;
   // @TODO if more than 2 places for `length` mutation, make it gettable property
-  public length: number;
   private subscribers: voidFunc[];
 
   constructor(vertices?: Vertex[]) {
     this.vertices = {};
 
     if (vertices) {
-      for (const vertex of vertices) {
-        const { id } = vertex;
-        this.vertices[id] = vertex;
-      }
+      // for (const vertex of vertices) {
+      //   const { id } = vertex;
+      //   this.vertices[id] = vertex;
+      // }
 
-      this.length = vertices.length;
-    } else {
-      this.length = 0;
+      const vertexMap = itemsToObjById(vertices);
+      this.vertices = vertexMap;
     }
 
     this.subscribers = [];
+  }
+
+  get(id: string): Vertex {
+    return this.vertices[id];
   }
 
   push(vertex: Vertex) {
     const { id } = vertex;
     this.vertices[id] = vertex;
 
-    this.length += 1;
     this.change();
   }
 
-  delete(vertex: Vertex);
-  delete(vertexId: string);
-  delete(vertexOrId: Vertex | string) {
+  delete(vertex: Vertex): void;
+  delete(vertexId: string): void;
+  delete(vertexOrId: Vertex | string): void {
     const id = vertexOrId instanceof Vertex ? vertexOrId.id : vertexOrId;
 
     delete this.vertices[id];
-    this.length -= 1;
     this.change();
   }
 
@@ -57,8 +57,23 @@ class VertexCollection {
     return this.vertices[chosenId] || null;
   }
 
+  replace(vertices: Vertex[]) {
+    this.vertices = itemsToObjById(vertices);
+
+    this.change();
+  }
+
   onChange(func: voidFunc) {
     this.subscribers.push(func);
+  }
+
+  get length() {
+    return this.toArray().length;
+  }
+
+  offChange(thisFunc: voidFunc) {
+    // unsubscribe from changes
+    this.subscribers = this.subscribers.filter(func => func !== thisFunc);
   }
 
   private change() {

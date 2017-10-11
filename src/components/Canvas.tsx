@@ -1,8 +1,5 @@
 import React, { Component } from "react";
 
-import VertexCollection from "./graphs/VertexCollection";
-import EdgeCollection from "./graphs/EdgeCollection";
-
 type CanvEl = HTMLCanvasElement;
 
 export interface EventHandlers {
@@ -20,8 +17,6 @@ export interface EventHandlers {
 }
 
 interface Props extends EventHandlers {
-  vertices: VertexCollection;
-  edges: EdgeCollection;
   setCtx:
     | ((
         ctx: CanvasRenderingContext2D | null,

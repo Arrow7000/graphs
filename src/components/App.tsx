@@ -7,26 +7,39 @@ import {
   applySpring,
   applyCenterMovement
   // boxForce
-} from "./graphs/forces";
-import { preRender, Updater } from "./graphs/helpers";
-import handlersFactory from "./graphs/touchHandlers";
-import VertexCreator from "./graphs/VertexCreator";
-import P from "./graphs/Point";
-import { getAvgMomentum } from "./graphs/forceUtils";
-
-import initNetwork from "./initNetwork";
+} from "../graphs/forces";
+import {
+  layoutPreRender,
+  Updater,
+  storeNetwork,
+  getNetwork
+} from "../graphs/helpers";
+import handlersFactory from "../graphs/touchHandlers";
+import VertexCreator from "../graphs/VertexCreator";
+import P from "../graphs/Point";
+import {
+  vertexRadius,
+  backgroundColour,
+  maxPrerenderTime,
+  maxAvgMomentumLen
+} from "../graphs/config";
+import VertexCollection from "../graphs/VertexCollection";
+import EdgeCollection from "../graphs/EdgeCollection";
+import Network from "../graphs/Network";
 
 const defaultSize = 100;
 const vertexCreatorMargin = 100;
 
-const maxPrerenderTime = 1000; // ms
-const maxAvgMomentumLen = 2.5;
+let network = new Network();
 
-const { vertices, edges } = initNetwork(defaultSize);
+function reassignNetwork(newNetwork: Network) {
+  // network = networkCollection;
+  const { vertices, edges } = network;
+  vertices.replace(newNetwork.vertices.toArray());
+  edges.replace(newNetwork.edges.toArray());
+}
 
 const vertexCreator = new VertexCreator(); // @TODO: put it in right bottom corner
-
-import { vertexRadius, backgroundColour } from "./graphs/config";
 
 const { random, round } = Math;
 
@@ -58,7 +71,7 @@ class App extends Component {
       mouseMove,
       mouseEnd,
       doubleClick
-    } = handlersFactory(vertices, edges, vertexCreator);
+    } = handlersFactory(network, vertexCreator);
 
     this.touchStart = touchStart.bind(this);
     this.touchMove = touchMove.bind(this);
@@ -75,11 +88,19 @@ class App extends Component {
     this.forceUpdate = this.forceUpdate.bind(this);
 
     this.setSize(defaultSize, defaultSize);
+
+    this.loadSavedNetwork = this.loadSavedNetwork.bind(this);
   }
 
   componentDidMount() {
-    vertices.onChange(this.forceUpdate);
-    edges.onChange(this.forceUpdate);
+    network.onChange(this.forceUpdate);
+
+    // // Restore last saved network
+    // const storedNetwork = getNetwork();
+    // console.log(storedNetwork);
+    // if (storedNetwork) {
+    //   reassignNetwork(storedNetwork.vertices, storedNetwork.edges);
+    // }
   }
 
   setSize(width: number, height: number) {
@@ -90,6 +111,8 @@ class App extends Component {
     vertexCreator.changePosition(
       new P(width - vertexCreatorMargin, height - vertexCreatorMargin)
     );
+
+    // storeNetwork(vertices.toArray(), edges.toArray());
   }
 
   ctxSet(width: number, height: number) {
@@ -98,9 +121,8 @@ class App extends Component {
     this.setSize(width, height);
 
     if (ctx) {
-      preRender(
-        vertices.toArray(),
-        getAvgMomentum,
+      layoutPreRender(
+        network.vertices.toArray(),
         update,
         maxPrerenderTime,
         maxAvgMomentumLen
@@ -117,9 +139,10 @@ class App extends Component {
   }
 
   update(visible = true) {
+    // `visible` param controls whether render method gets called
     const { ctx, width, height, center } = this;
+    const { vertices, edges } = network;
     if (ctx) {
-      // `visible` param controls whether render method gets called
       ctx.beginPath();
       ctx.fillStyle = backgroundColour;
       ctx.fillRect(0, 0, width, height);
@@ -146,6 +169,14 @@ class App extends Component {
     }
   }
 
+  loadSavedNetwork() {
+    const storedNetwork = getNetwork();
+    console.log(storedNetwork);
+    if (storedNetwork) {
+      reassignNetwork(storedNetwork);
+    }
+  }
+
   render() {
     const {
       touchStart,
@@ -159,11 +190,9 @@ class App extends Component {
 
     return (
       <div className="grid-container">
-        <Dashboard vertices={vertices} edges={edges} />
+        <Dashboard network={network} load={this.loadSavedNetwork} />
         <Canvas
           onResize={this.setSize}
-          vertices={vertices}
-          edges={edges}
           setCtx={this.setCtx}
           touchStart={touchStart}
           touchMove={touchMove}

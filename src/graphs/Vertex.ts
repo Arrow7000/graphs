@@ -1,5 +1,7 @@
+import each from "lodash/each";
 import P, { random, floor, addVec, multiplyVec } from "./Point";
 import VertexCreator from "./VertexCreator";
+import Edge from "./Edge";
 import {
   damping,
   vertexMass,
@@ -24,11 +26,22 @@ class Vertex {
 
   constructor(x: number, y: number);
   constructor(point: P);
+  constructor(id: string);
   constructor();
-  constructor(xOrPoint: P | number = new P(), yCoord?: number) {
-    this.id = uuid();
+  constructor(xOrPointOrId: P | number | string = new P(), yCoord?: number) {
+    if (typeof xOrPointOrId === "string") {
+      // used when rehydrating stored network
+      this.id = xOrPointOrId;
 
-    this.position = yCoord ? new P(<number>xOrPoint, yCoord) : <P>xOrPoint;
+      // @TODO: come up with better random initial position. Maybe use a defaultSize of 100?
+      this.position = new P(random(), random());
+    } else {
+      this.id = uuid();
+
+      this.position = yCoord
+        ? new P(<number>xOrPointOrId, yCoord)
+        : <P>xOrPointOrId;
+    }
 
     this.velocity = new P();
     this.stress = 0;
@@ -91,6 +104,24 @@ class Vertex {
 
   setText(text: string) {
     this.text = text;
+  }
+
+  getEdges(allEdges: Edge[]) {
+    const thisEdges = allEdges.filter(edge => {
+      return edge.from === this || edge.to === this;
+    });
+
+    return thisEdges;
+  }
+
+  edgesTo(allEdges: Edge[]) {
+    const theseEdges = this.getEdges(allEdges);
+    return theseEdges.filter(edge => edge.to === this);
+  }
+
+  edgesFrom(allEdges: Edge[]) {
+    const theseEdges = this.getEdges(allEdges);
+    return theseEdges.filter(edge => edge.from === this);
   }
 
   render(ctx: CanvasRenderingContext2D) {

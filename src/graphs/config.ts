@@ -23,6 +23,10 @@ export const centerForce = 1; // max of 1, min of 0
 // Gravity
 export const G = 2; // gravitational constants
 
+// prerender settings
+export const maxPrerenderTime = 1000; // ms
+export const maxAvgMomentumLen = 2.5; // length of momentum vector before deemed ok to stop prerendering
+
 /**
  * Styles
  */

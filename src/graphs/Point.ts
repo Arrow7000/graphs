@@ -201,7 +201,14 @@ export function isWithinRadius(from: Point, to: Point, radius: number) {
   return getDistance(from, to) < radius;
 }
 
-function pDistance(x, y, x1, y1, x2, y2) {
+function pDistance(
+  x: number,
+  y: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+) {
   const A = x - x1;
   const B = y - y1;
   const C = x2 - x1;
