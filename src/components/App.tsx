@@ -121,12 +121,7 @@ class App extends Component {
     this.setSize(width, height);
 
     if (ctx) {
-      layoutPreRender(
-        network.vertices.toArray(),
-        update,
-        maxPrerenderTime,
-        maxAvgMomentumLen
-      );
+      this.prerender();
 
       Updater(width, height, ctx, update);
     }
@@ -169,11 +164,22 @@ class App extends Component {
     }
   }
 
+  prerender() {
+    const { update } = this;
+    layoutPreRender(
+      network.vertices.toArray(),
+      update,
+      maxPrerenderTime,
+      maxAvgMomentumLen
+    );
+  }
+
   loadSavedNetwork() {
     const storedNetwork = getNetwork();
     console.log(storedNetwork);
     if (storedNetwork) {
       reassignNetwork(storedNetwork);
+      this.prerender();
     }
   }
 
