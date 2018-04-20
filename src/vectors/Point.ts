@@ -4,21 +4,29 @@ class Point extends P {
   constructor(x: number, y: number);
   constructor(point: P);
   constructor();
-  constructor(xOrP?: P | number, yCoord?: number) {
+  constructor(xOrP: P | number = new P(0, 0), yCoord?: number) {
     let position: P;
+
+    // if (yCoord !== undefined) {
+    //   position = new P(xOrP as number, yCoord);
+    // } else if (xOrP !== undefined) {
+    //   position = xOrP as P;
+    // } else {
+    //   position = new P(0, 0);
+    // }
 
     if (yCoord !== undefined) {
       position = new P(xOrP as number, yCoord);
-    } else if (xOrP !== undefined) {
-      position = xOrP as P;
+      // } else if (xOrP !== undefined) {
     } else {
-      position = new P(0, 0);
+      // position = new P(0, 0);
+      position = xOrP as P;
     }
     const { x, y } = position;
     super(x, y);
   }
 
-  length() {
+  get length() {
     return getVectorLen(this);
   }
 
@@ -158,14 +166,14 @@ export function setVecToLen(vector: Point, length: number) {
 }
 
 export function maxVec(vector: Point, maxLength: number) {
-  if (vector.length() > maxLength) {
+  if (vector.length > maxLength) {
     return setVecToLen(vector, maxLength);
   }
   return vector;
 }
 
 export function minVec(vector: Point, minLength: number) {
-  if (vector.length() < minLength) {
+  if (vector.length < minLength) {
     return setVecToLen(vector, minLength);
   }
   return vector;
