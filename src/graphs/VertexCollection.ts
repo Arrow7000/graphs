@@ -1,5 +1,5 @@
 import Vertex from "./Vertex";
-import { floor, random } from "./Point";
+import { floor, random } from "../vectors/Point";
 import map from "lodash/map";
 
 import { voidFunc, IdMap, itemsToObjById } from "./collectionHelpers";

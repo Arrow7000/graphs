@@ -16,7 +16,7 @@ import P, {
   maxVec,
   isP,
   toBox
-} from "./Point";
+} from "../vectors/Point";
 import Edge from "./Edge";
 import {
   springLength,
@@ -63,7 +63,7 @@ function getCoulombForce(
   charge2: number
 ): P {
   const vecToTarget = vertex.position.vecTo(position);
-  const distance = vecToTarget.length();
+  const distance = vecToTarget.length;
 
   if (distance <= 0 || distance === Infinity) {
     debugger;
@@ -98,7 +98,7 @@ function getTreeForce(vertex: Vertex, tree: QuadNode): P {
     const force = getCoulombForce(vertex, position, vertex.charge, charge);
     return force;
   } else {
-    const distance = vertex.position.vecTo(tree.centerOfCharge).length();
+    const distance = vertex.position.vecTo(tree.centerOfCharge).length;
     const sByD = tree.width / distance;
     // log(sByD);
     if (sByD < theta) {
@@ -167,7 +167,7 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
   const avgPosition = getAvgPosition(nodes.map(node => node.position));
   const toCenter = avgPosition.vecTo(center);
   const moveNow =
-    toCenter.length() < 1 ? toCenter : toCenter.divide(timeToCenter / fps);
+    toCenter.length < 1 ? toCenter : toCenter.divide(timeToCenter / fps);
 
   const okToCenter = nodes.filter(vertex => vertex.dragging).length < 1;
 

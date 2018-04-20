@@ -1,4 +1,4 @@
-import P from "./Point";
+import P from "../vectors/Point";
 import Vertex from "./Vertex";
 import VertexCollection from "./VertexCollection";
 import VertexCreator from "./VertexCreator";
@@ -151,9 +151,9 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
         } else {
           const edge = new Edge(vertex, touchPoint);
           /**
-             * @TODO
-             * - Don't like mutating the array in an obscure method
-             */
+           * @TODO
+           * - Don't like mutating the array in an obscure method
+           */
           // edges.push(edge);
           network.pushEdge(edge);
           touches[touch.identifier] = edge;
@@ -218,9 +218,9 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
               item.attachToVertex(closestVertex);
             } else {
               /**
-             * @TODO
-             * - Don't like mutating array here either :/
-             */
+               * @TODO
+               * - Don't like mutating array here either :/
+               */
               // edges.delete(item);
               network.deleteEdge(item);
             }
@@ -248,9 +248,9 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
       } else {
         const edge = new Edge(vertex, touchPoint);
         /**
-       * @TODO
-       * - Don't like mutating the array in an obscure method
-       */
+         * @TODO
+         * - Don't like mutating the array in an obscure method
+         */
         // edges.push(edge);
         network.pushEdge(edge);
         click.item = edge;

@@ -1,5 +1,5 @@
 import each from "lodash/each";
-import P, { random, floor, addVec, multiplyVec } from "./Point";
+import P, { random, floor, addVec, multiplyVec } from "../vectors/Point";
 import VertexCreator from "./VertexCreator";
 import Edge from "./Edge";
 import {
@@ -80,7 +80,7 @@ class Vertex {
   }
 
   applyForce(vector: P) {
-    this.stress += vector.length();
+    this.stress += vector.length;
     if (!this.dragging) {
       const momentum = vector.divide(this.mass);
       this.velocity = this.velocity.add(momentum);
