@@ -52,7 +52,7 @@ class Vertex {
     this.dragging = false;
   }
 
-  getMomentum() {
+  get momentum() {
     return this.velocity.multiply(this.mass);
   }
 

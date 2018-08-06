@@ -3,7 +3,7 @@ import Edge from "./Edge";
 import VertexCollection from "./VertexCollection";
 import EdgeCollection from "./EdgeCollection";
 import Network from "./Network";
-import P, { isP, floor, random } from "./Point";
+import P, { isP, floor, random } from "../vectors/Point";
 // import { edgeWidth } from "./config";
 import map from "lodash/map";
 import each from "lodash/each";
@@ -44,21 +44,40 @@ export function layoutPreRender(
   }
 }
 
-export function Updater(
-  width: number,
-  height: number,
-  ctx: CanvasRenderingContext2D,
-  func: () => void
-) {
-  function update() {
-    ctx.beginPath();
-    ctx.clearRect(0, 0, width, height);
+// export function Updater(
+//   width: number,
+//   height: number,
+//   ctx: CanvasRenderingContext2D,
+//   func: () => void
+// ) {
+//   function update() {
+//     ctx.beginPath();
+//     ctx.clearRect(0, 0, width, height);
 
+//     func();
+//     requestAnimationFrame(update);
+//   }
+
+//   update();
+// }
+
+export function Updater(func: () => void) {
+  let stop = false;
+
+  function update() {
     func();
-    requestAnimationFrame(update);
+    if (!stop) {
+      requestAnimationFrame(update);
+    }
   }
 
   update();
+
+  const canceller = () => {
+    stop = true;
+  };
+
+  return canceller;
 }
 
 export function getClosestVertex(

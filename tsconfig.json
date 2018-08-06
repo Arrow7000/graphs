@@ -4,9 +4,9 @@
     "allowSyntheticDefaultImports": true,
     "module": "es2015",
     "lib": ["es2015", "es2016", "dom"],
-    "strictNullChecks": true,
     "jsx": "react",
-    "noImplicitAny": true
-  },
-  "include": ["./src/*"]
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "strict": true
+  }
 }

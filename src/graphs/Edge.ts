@@ -1,5 +1,5 @@
 import Vertex from "./Vertex";
-import P, { getDistance, isP } from "./Point";
+import P, { getDistance, isP } from "../vectors/Point";
 import { edgeColour, vertexRadius, edgeWidth } from "./config";
 import { uuid } from "./helpers";
 

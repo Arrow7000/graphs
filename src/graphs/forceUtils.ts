@@ -1,7 +1,7 @@
 import each from "lodash/each";
 import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
-import {
+import P, {
   addVec,
   subtrVec,
   vecFromTo,
@@ -9,8 +9,8 @@ import {
   divideVec,
   getAvgPosition,
   sqrt
-} from "./Point";
-import P from "./Point";
+} from "../vectors/Point";
+// import P from "../vectors/P";
 import Vertex from "./Vertex";
 
 export interface ExternalNode {
@@ -192,11 +192,9 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
 
 export function getAvgMomentum(nodes: Vertex[]): number {
   return (
-    nodes
-      .map(vertex => vertex.getMomentum().length())
-      .reduce((total, momentum) => {
-        return total + momentum;
-      }, 0) / nodes.length
+    nodes.map(vertex => vertex.momentum.length).reduce((total, momentum) => {
+      return total + momentum;
+    }, 0) / nodes.length
   );
 }
 

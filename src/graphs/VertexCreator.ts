@@ -1,4 +1,4 @@
-import P from "./Point";
+import P from "../vectors/Point";
 import {
   damping,
   vertexMass,

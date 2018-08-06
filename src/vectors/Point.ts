@@ -1,11 +1,13 @@
-import P from "./P";
+// import Point from "./P";
 
-class Point extends P {
+class Point {
+  x: number;
+  y: number;
   constructor(x: number, y: number);
-  constructor(point: P);
+  // constructor(point: P);
   constructor();
-  constructor(xOrP: P | number = new P(0, 0), yCoord?: number) {
-    let position: P;
+  constructor(xCoord: number = 0, yCoord: number = 0) {
+    // let position: P;
 
     // if (yCoord !== undefined) {
     //   position = new P(xOrP as number, yCoord);
@@ -15,16 +17,39 @@ class Point extends P {
     //   position = new P(0, 0);
     // }
 
-    if (yCoord !== undefined) {
-      position = new P(xOrP as number, yCoord);
-      // } else if (xOrP !== undefined) {
-    } else {
-      // position = new P(0, 0);
-      position = xOrP as P;
-    }
-    const { x, y } = position;
-    super(x, y);
+    // if (yCoord !== undefined) {
+    //   position = new P(xCoord as number, yCoord);
+    //   // } else if (xOrP !== undefined) {
+    // } else {
+    //   // position = new P(0, 0);
+    //   position = xCoord as P;
+    // }
+    // const { x, y } = position;
+    // super(x, y);
+    this.x = xCoord;
+    this.y = yCoord;
   }
+  // constructor(xOrP: P | number = new P(0, 0), yCoord?: number) {
+  //   let position: P;
+
+  //   // if (yCoord !== undefined) {
+  //   //   position = new P(xOrP as number, yCoord);
+  //   // } else if (xOrP !== undefined) {
+  //   //   position = xOrP as P;
+  //   // } else {
+  //   //   position = new P(0, 0);
+  //   // }
+
+  //   if (yCoord !== undefined) {
+  //     position = new P(xOrP as number, yCoord);
+  //     // } else if (xOrP !== undefined) {
+  //   } else {
+  //     // position = new P(0, 0);
+  //     position = xOrP as P;
+  //   }
+  //   const { x, y } = position;
+  //   super(x, y);
+  // }
 
   get length() {
     return getVectorLen(this);
@@ -181,7 +206,7 @@ export function minVec(vector: Point, minLength: number) {
 
 export function getAngle(vector: Point, from: Point = new Point(0, -1)) {
   const angle = Math.atan2(vector.y - from.y, vector.x - from.x);
-  const degrees = 180 * angle / PI;
+  const degrees = (180 * angle) / PI;
   return degrees % 360;
 }
 
@@ -197,7 +222,7 @@ export function rotateAround(
 
 function rotate(vector: Point, degrees: number) {
   const { x, y } = vector;
-  const radians = degrees * PI / 180;
+  const radians = (degrees * PI) / 180;
 
   const ca = cos(radians);
   const sa = sin(radians);
@@ -299,6 +324,6 @@ export function combineVectors(vectors: Point[]): Point {
   }, new Point());
 }
 
-export const isP = (vOrP: P | any): vOrP is P => vOrP instanceof P;
+export const isP = (vOrP: Point | any): vOrP is Point => vOrP instanceof Point;
 
 export default Point;
