@@ -50,6 +50,8 @@ class Vertex {
     this.charge = vertexCharge;
 
     this.dragging = false;
+
+    this.drag = this.drag.bind(this);
   }
 
   get momentum() {
@@ -95,6 +97,7 @@ class Vertex {
   }
 
   drag(position: P) {
+    console.log("moving to", position);
     this.position = position;
   }
 

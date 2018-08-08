@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 // import Konva from "konva";
-import { Stage, Layer, Rect, Text, Circle } from "react-konva";
+import { Stage, Layer, Rect, Text, Circle, Line } from "react-konva";
 import Dashboard from "./Dashboard";
 import Canvas, { EventHandlers } from "./Canvas";
 import each from "lodash/each";
@@ -25,12 +25,35 @@ const { random, round } = Math;
 
 const diag = 1200;
 
-interface VertexRenderProps {
-  x: number;
-  y: number;
-}
-function VertexRender({ x, y }: VertexRenderProps) {
-  return <Circle radius={50} fill={"#446CB3"} strokeWidth={15} x={x} y={y} />;
+function VertexRender({ vertex }: { vertex: Vertex }) {
+  const dragger = e => {
+    console.log(e.target);
+    vertex.drag(new P(e.target.x(), e.target.y()));
+  };
+
+  const dragStart = e => {
+    vertex.dragging = true;
+    dragger(e);
+  };
+
+  const dragEnd = e => {
+    dragger(e);
+    vertex.dragging = false;
+  };
+
+  return (
+    <Circle
+      radius={50}
+      fill="#446CB3"
+      strokeWidth={15}
+      x={vertex.position.x}
+      y={vertex.position.y}
+      draggable
+      onDragStart={dragStart}
+      onDragMove={dragger}
+      onDragEnd={dragEnd}
+    />
+  );
 }
 
 const getRandCoord = () => {
@@ -48,11 +71,14 @@ const vertices = getRandCoords();
 let network = new Network();
 const v1 = new Vertex();
 const v2 = new Vertex(2000, 2000);
+const v3 = new Vertex(0, 13);
 network.pushVertex(v1);
 network.pushVertex(v2);
-network.pushVertex(new Vertex(0, 13));
+network.pushVertex(v3);
 const e1 = new Edge(v1, v2);
+const e2 = new Edge(v1, v3);
 network.pushEdge(e1);
+network.pushEdge(e2);
 
 function reassignNetwork(newNetwork: Network) {
   // network = networkCollection;
@@ -94,7 +120,9 @@ class App extends Component {
       this.forceUpdate();
     });
 
-    setInterval(() => this.forceUpdate(), 10);
+    setInterval(() => {
+      this.forceUpdate();
+    }, 1000 / 60);
 
     // // Restore last saved network
     // const storedNetwork = getNetwork();
@@ -112,15 +140,28 @@ class App extends Component {
     return (
       <Stage width={window.innerWidth} height={window.innerHeight}>
         <Layer>
-          {network.vertices
-            .toArray()
-            .map((vertex, i) => (
-              <VertexRender
-                key={i}
-                x={vertex.position.x}
-                y={vertex.position.y}
-              />
-            ))}
+          {network.edges.toArray().map((edge, i) => {
+            if (edge.to) {
+              return (
+                <Line
+                  key={i}
+                  strokeWidth={2}
+                  stroke="#446CB3"
+                  points={[
+                    edge.from.position.x,
+                    edge.from.position.y,
+                    edge.to.position.x,
+                    edge.to.position.y
+                  ]}
+                />
+              );
+            } else {
+              return null;
+            }
+          })}
+          {network.vertices.toArray().map((vertex, i) => (
+            <VertexRender key={i} vertex={vertex} />
+          ))}
         </Layer>
       </Stage>
     );
