@@ -11,7 +11,11 @@ export function itemsToObjById<T extends IdItem>(items: T[]) {
 
   for (const item of items) {
     const { id } = item;
-    holder[id] = item;
+    if (holder[id]) {
+      throw new Error("Duplicate 'id' property in items");
+    } else {
+      holder[id] = item;
+    }
   }
 
   return holder;

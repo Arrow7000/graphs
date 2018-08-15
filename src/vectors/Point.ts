@@ -3,53 +3,16 @@
 class Point {
   x: number;
   y: number;
-  constructor(x: number, y: number);
-  // constructor(point: P);
   constructor();
+  constructor(x: number, y: number);
   constructor(xCoord: number = 0, yCoord: number = 0) {
-    // let position: P;
-
-    // if (yCoord !== undefined) {
-    //   position = new P(xOrP as number, yCoord);
-    // } else if (xOrP !== undefined) {
-    //   position = xOrP as P;
-    // } else {
-    //   position = new P(0, 0);
-    // }
-
-    // if (yCoord !== undefined) {
-    //   position = new P(xCoord as number, yCoord);
-    //   // } else if (xOrP !== undefined) {
-    // } else {
-    //   // position = new P(0, 0);
-    //   position = xCoord as P;
-    // }
-    // const { x, y } = position;
-    // super(x, y);
     this.x = xCoord;
     this.y = yCoord;
   }
-  // constructor(xOrP: P | number = new P(0, 0), yCoord?: number) {
-  //   let position: P;
 
-  //   // if (yCoord !== undefined) {
-  //   //   position = new P(xOrP as number, yCoord);
-  //   // } else if (xOrP !== undefined) {
-  //   //   position = xOrP as P;
-  //   // } else {
-  //   //   position = new P(0, 0);
-  //   // }
-
-  //   if (yCoord !== undefined) {
-  //     position = new P(xOrP as number, yCoord);
-  //     // } else if (xOrP !== undefined) {
-  //   } else {
-  //     // position = new P(0, 0);
-  //     position = xOrP as P;
-  //   }
-  //   const { x, y } = position;
-  //   super(x, y);
-  // }
+  copy() {
+    return new Point(this.x, this.y);
+  }
 
   get length() {
     return getVectorLen(this);
@@ -83,6 +46,7 @@ class Point {
     }
   }
 
+  // should make subtract be able to take a number too
   subtract(p: Point) {
     return subtrVec(this, p);
   }

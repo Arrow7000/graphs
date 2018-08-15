@@ -1,29 +1,20 @@
 import Point from "./Point";
+import { getXY } from "../testHelpers";
 
 describe("Basic Point creation", () => {
   test("Explicit coords", () => {
     const point = new Point(0, 1);
-    const { x, y } = point;
-    expect(x).toEqual(0);
-    expect(y).toEqual(1);
+    expect(getXY(point)).toEqual({ x: 0, y: 1 });
   });
 
   test("Copying point", () => {
-    const point = new Point(new Point(3, 8));
-    const { x, y } = point;
-    expect(x).toEqual(3);
-    expect(y).toEqual(8);
-  });
-
-  test("Providing only a single coord provided should throw", () => {
-    expect(() => new Point(19)).toThrow();
+    const point = new Point(3, 8).copy();
+    expect(getXY(point)).toEqual({ x: 3, y: 8 });
   });
 
   test("No coords should return Null Island ({0,0})", () => {
     const point = new Point();
-    const { x, y } = point;
-    expect(x).toEqual(0);
-    expect(y).toEqual(0);
+    expect(getXY(point)).toEqual({ x: 0, y: 0 });
   });
 });
 
@@ -33,11 +24,6 @@ describe("Point methods", () => {
   const p0 = new Point();
   const p1 = new Point(1, 1);
   const p2 = new Point(10 * SQRT2, 10 * SQRT2);
-
-  test("Get vector length", () => {
-    expect(p0.length).toBe(0);
-    expect(p2.length).toBe(20);
-  });
 
   test("Get vector length", () => {
     expect(p0.length).toBe(0);
