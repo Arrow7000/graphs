@@ -93,7 +93,7 @@ function newVertexTouch(
 ) {
   const newVertex = newVertexUniversals(network, touchPoint, vertexCreator);
 
-  newVertex.drag(touchPoint); // snap to finger
+  newVertex.move(touchPoint); // snap to finger
   touches[touch.identifier] = newVertex;
 }
 
@@ -146,7 +146,7 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
       if (vertex) {
         if (touchedPart === vertexPart.body) {
           vertex.dragging = true;
-          vertex.drag(touchPoint); // snap to finger
+          vertex.move(touchPoint); // snap to finger
           touches[touch.identifier] = vertex;
         } else {
           const edge = new Edge(vertex, touchPoint);
@@ -174,7 +174,7 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
       const item = touches[touch.identifier];
       if (item) {
         if (item instanceof Vertex) {
-          item.drag(position);
+          item.move(position);
         } else {
           item.setPointB(position);
         }
@@ -267,7 +267,7 @@ function handlersFactory(network: Network, vertexCreator: VertexCreator) {
 
       const pos = getTouchPos(canvas, event);
       if (item instanceof Vertex) {
-        item.drag(pos.subtract(offset));
+        item.move(pos.subtract(offset));
       } else {
         item.setPointB(pos);
       }

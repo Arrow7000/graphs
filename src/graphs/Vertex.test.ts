@@ -47,5 +47,11 @@ describe("Vertex", () => {
 
       expect(v.position).toEqual(new P(1, 2).divide(v.mass));
     });
+
+    test("Move", () => {
+      const v = new Vertex();
+      v.move(new P(1, 7));
+      expect(v.position).toEqual(new P(1, 7));
+    });
   });
 });

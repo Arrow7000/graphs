@@ -14,7 +14,7 @@ import {
 import { uuid } from "./helpers";
 
 class Vertex {
-  id: string;
+  readonly id: string;
   position: P;
   velocity: P;
   stress: number;
@@ -48,7 +48,7 @@ class Vertex {
 
     this.dragging = false;
 
-    this.drag = this.drag.bind(this);
+    this.move = this.move.bind(this);
   }
 
   get momentum() {
@@ -74,7 +74,7 @@ class Vertex {
       // actual movement happens here
       // The rest is commentary
       this.velocity = this.velocity.multiply(1 - damping);
-      this.position = this.position.add(this.velocity);
+      this.move(this.position.add(this.velocity));
     }
   }
 
@@ -89,12 +89,11 @@ class Vertex {
   // applies movement directly without applying force - used mainly for centering
   applyMovement(vector: P) {
     if (!this.dragging) {
-      this.position = this.position.add(vector);
+      this.move(this.position.add(vector));
     }
   }
 
-  drag(position: P) {
-    console.log("moving to", position);
+  move(position: P) {
     this.position = position;
   }
 
@@ -124,6 +123,7 @@ class Vertex {
     return theseEdges.filter(edge => edge.from === this);
   }
 
+  // @deprecated
   render(ctx: CanvasRenderingContext2D) {
     // draws directly onto canvas
     const { x, y } = this.position;

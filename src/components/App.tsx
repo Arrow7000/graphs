@@ -28,7 +28,7 @@ const diag = 1200;
 function VertexRender({ vertex }: { vertex: Vertex }) {
   const dragger = e => {
     console.log(e.target);
-    vertex.drag(new P(e.target.x(), e.target.y()));
+    vertex.move(new P(e.target.x(), e.target.y()));
   };
 
   const dragStart = e => {
