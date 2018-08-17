@@ -142,7 +142,7 @@ function springForce(
 export function applySpring(edges: Edge[]) {
   each(edges, edge => {
     const { a, b } = edge.vertices;
-    const distance = edge.getLength();
+    const distance = edge.length;
     const bIsP = isP(b);
     const bPos = bIsP ? <P>b : (<Vertex>b).position;
 

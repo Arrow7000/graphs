@@ -1,26 +1,20 @@
-import each from "lodash/each";
 import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
-import P, {
-  addVec,
-  subtrVec,
-  vecFromTo,
-  multiplyVec,
-  divideVec,
-  getAvgPosition,
-  sqrt
-} from "../vectors/Point";
-// import P from "../vectors/P";
+import P, { sqrt } from "../vectors/Point";
 import Vertex from "./Vertex";
+
+// export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
+const NW = "NW";
+const SW = "SW";
+const NE = "NE";
+const SE = "SE";
+export const directions = [NW, SW, NE, SE];
 
 export interface ExternalNode {
   vertex: Vertex;
 }
 
-// export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
-export const directions = ["NW", "SW", "NE", "SE"];
-
-export interface InternalNode extends _.Dictionary<any> {
+export interface InternalNode {
   totalCharge: number;
   vertices: Vertex[];
   centerOfCharge: P;
@@ -35,7 +29,7 @@ export interface InternalNode extends _.Dictionary<any> {
 export type QuadNode = InternalNode | ExternalNode;
 
 export function isInternalNode(quadUnit: QuadNode): quadUnit is InternalNode {
-  return !!(<InternalNode>quadUnit).centerOfCharge;
+  return !!(quadUnit as InternalNode).centerOfCharge;
 }
 
 export interface Square {
@@ -52,7 +46,7 @@ export function constructQuadTree(
   const { origin, end } = square;
 
   if (nodes && nodes.length !== undefined && nodes.length > 1) {
-    const squareVec = vecFromTo(origin, end);
+    const squareVec = origin.vecTo(end);
     const width = squareVec.x;
 
     const grouped = groupBy(nodes, node => groupQuad(node, square));
@@ -127,9 +121,9 @@ function groupQuad(node: Vertex, { origin, end }: Square) {
   const centerX = origin.x + (end.x - origin.x) / 2;
   const centerY = origin.y + (end.y - origin.y) / 2;
   if (node.position.x < centerX) {
-    return node.position.y < centerY ? "NW" : "SW";
+    return node.position.y < centerY ? NW : SW;
   } else {
-    return node.position.y < centerY ? "NE" : "SE";
+    return node.position.y < centerY ? NE : SE;
   }
 }
 
@@ -150,10 +144,10 @@ function isInSquare(point: P, origin: P, end: P): boolean {
 }
 
 // returns [origin, endCorner] coordinates, depending on the quad
-function getNewSquare(quad: string, { origin, end }: Square): Square {
+export function getNewSquare(quad: string, { origin, end }: Square): Square {
   const centerPoint = origin.add(end.subtract(origin).divide(2));
   switch (quad) {
-    case "NW":
+    case NW:
       // origin   = origin
       // end      = origin + ((end - origin) / 2)
       return {
@@ -161,7 +155,7 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
         end: centerPoint
       };
 
-    case "SW":
+    case SW:
       // origin   = x: origin.x, y: origin.y + ((end.y - origin.y) / 2)
       // end      = x: origin.x + ((end.x - origin.x) / 2) ,y: end.y
       return {
@@ -169,7 +163,7 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
         end: new P(origin.x + (end.x - origin.x) / 2, end.y)
       };
 
-    case "NE":
+    case NE:
       // origin   = x: origin.x + ((end.x - origin.x) / 2), y: origin.y
       // end      = x: end.x, y: origin.y + ((end.y - origin.y) / 2)
       return {
@@ -177,7 +171,7 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
         end: new P(end.x, origin.y + (end.y - origin.y) / 2)
       };
 
-    case "SE":
+    case SE:
       // origin   = origin + ((end - origin) / 2)
       // end      = end
       return {
@@ -191,10 +185,13 @@ function getNewSquare(quad: string, { origin, end }: Square): Square {
 }
 
 export function getAvgMomentum(nodes: Vertex[]): number {
+  if (nodes.length < 1) {
+    return 0;
+  }
   return (
-    nodes.map(vertex => vertex.momentum.length).reduce((total, momentum) => {
-      return total + momentum;
-    }, 0) / nodes.length
+    nodes
+      .map(vertex => vertex.momentum.length)
+      .reduce((total, momentum) => total + momentum, 0) / nodes.length
   );
 }
 
