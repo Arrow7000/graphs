@@ -34,39 +34,38 @@ import {
   constructQuadTree,
   directions,
   QuadNode,
-  InternalNode,
-  ExternalNode,
-  isInternalNode,
+  BranchNode,
+  LeafNode,
+  isNotLeafNode,
   Square
 } from "./forceUtils";
 
 const { min, max } = Math;
 const fps = 60;
 
-function coulombStrength(
+export function coulombStrength(
   coulombConst: number,
   charge1: number,
   charge2: number,
   distance: number
 ): number {
-  if (distance < 0.001) {
-    debugger;
+  if (distance < 0.0001) {
+    throw new Error("Distance is too close to 0 for safe calculation");
   }
-  const strength = coulombConst * (charge1 * charge2) / sqr(distance / 2);
-  return strength;
+  return (coulombConst * charge1 * charge2) / sqr(distance / 2);
 }
 
-function getCoulombForce(
-  vertex: Vertex,
-  position: P,
+export function getCoulombForce(
+  from: P,
+  to: P,
   charge1: number,
   charge2: number
 ): P {
-  const vecToTarget = vertex.position.vecTo(position);
+  const vecToTarget = from.vecTo(to);
   const distance = vecToTarget.length;
 
   if (distance <= 0 || distance === Infinity) {
-    debugger;
+    throw new Error(`Distance is ${distance}`);
   }
 
   const strength = coulombStrength(coulombConst, charge1, charge2, distance);
@@ -75,12 +74,9 @@ function getCoulombForce(
   return force;
 }
 
-export function applyElectrostatic(
-  vertices: Vertex[],
-  ctx?: CanvasRenderingContext2D
-) {
+export function applyElectrostatic(vertices: Vertex[]) {
   const square = getLargestSquare(vertices);
-  const tree = constructQuadTree(vertices, square, ctx);
+  const tree = constructQuadTree(vertices, square);
 
   each(vertices, vertex => {
     const totalForce = maxVec(getTreeForce(vertex, tree), 100);
@@ -89,22 +85,27 @@ export function applyElectrostatic(
 }
 
 function getTreeForce(vertex: Vertex, tree: QuadNode): P {
-  if (!isInternalNode(tree)) {
+  if (!isNotLeafNode(tree)) {
     // if is external
     const { id, position, charge } = tree.vertex;
     if (id === vertex.id) {
       return new P(0, 0); // no force if is the same node
     }
-    const force = getCoulombForce(vertex, position, vertex.charge, charge);
+    const force = getCoulombForce(
+      vertex.position,
+      position,
+      vertex.charge,
+      charge
+    );
     return force;
   } else {
     const distance = vertex.position.vecTo(tree.centerOfCharge).length;
-    const sByD = tree.width / distance;
+    const sByD = tree.squareWidth / distance;
     // log(sByD);
     if (sByD < theta) {
       const { centerOfCharge, totalCharge } = tree;
       const force = getCoulombForce(
-        vertex,
+        vertex.position,
         centerOfCharge,
         vertex.charge,
         totalCharge
@@ -121,11 +122,11 @@ function getTreeForce(vertex: Vertex, tree: QuadNode): P {
 
 export function applyGravity(vertices: Vertex[], center: P) {
   each(vertices, vertex => {
-    const vecToCenter = vecFromTo(vertex.position, center);
-    const distance = getVectorLen(vecToCenter);
-    const direction = normaliseVec(vecToCenter);
-    const force = G * sqr(vertexMass) / sqr(distance);
-    const vector = multiplyVec(direction, force);
+    const vecToCenter = vertex.position.vecTo(center);
+    const distance = vecToCenter.length;
+    const direction = vecToCenter.normalise();
+    const force = (G * sqr(vertexMass)) / sqr(distance);
+    const vector = direction.multiply(force);
     vertex.applyForce(vector);
   });
 }
@@ -174,7 +175,7 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
   if (okToCenter) {
     // only center when not dragging any vertices
     each(nodes, node => {
-      const vector = multiplyVec(moveNow, centerForce);
+      const vector = moveNow.multiply(centerForce);
       node.applyMovement(vector);
     });
   }
@@ -189,31 +190,22 @@ export function applyCenterMovement(nodes: Vertex[], center: P) {
 //   });
 // }
 
-function getLargestSquare(vertices: Vertex[]): Square {
-  const marginPoint = new P(50, 50);
+export function getLargestSquare(vertices: Vertex[]): Square {
+  // const marginPoint = new P(50, 50);
 
   const startPt = vertices.length > 0 ? vertices[0].position : new P();
 
-  const origin: P = vertices
-    .reduce((NWmost, vertex) => {
-      const { x, y } = vertex.position;
-      return new P(min(NWmost.x, x), min(NWmost.y, y));
-    }, startPt)
-    .subtract(marginPoint);
+  const origin: P = vertices.reduce((NWmost, vertex) => {
+    const { x, y } = vertex.position;
+    return new P(min(NWmost.x, x), min(NWmost.y, y));
+  }, startPt);
+  // .subtract(marginPoint);
 
-  const end: P = vertices
-    .reduce((SEmost, vertex) => {
-      const { x, y } = vertex.position;
-      return new P(max(SEmost.x, x), max(SEmost.y, y));
-    }, startPt)
-    .add(marginPoint);
+  const end: P = vertices.reduce((SEmost, vertex) => {
+    const { x, y } = vertex.position;
+    return new P(max(SEmost.x, x), max(SEmost.y, y));
+  }, startPt);
+  // .add(marginPoint);
 
-  return { origin, end };
-}
-
-function cap(num: number, limit: number, isLowerBound: boolean): number {
-  if (isLowerBound) {
-    return num < limit ? limit : num;
-  }
-  return num > limit ? limit : num;
+  return [origin, end];
 }

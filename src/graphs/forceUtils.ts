@@ -4,21 +4,22 @@ import P, { sqrt } from "../vectors/Point";
 import Vertex from "./Vertex";
 
 // export type direction = 'upLeft' | 'downLeft' | 'upRight' | 'downRight';
-const NW = "NW";
-const SW = "SW";
-const NE = "NE";
-const SE = "SE";
-export const directions = [NW, SW, NE, SE];
 
-export interface ExternalNode {
-  vertex: Vertex;
+// @TODO: could probably refactor this to use an enum
+type Direction = "NW" | "SW" | "NE" | "SE";
+export const directions: Direction[] = ["NW", "SW", "NE", "SE"];
+export const [NW, SW, NE, SE]: Direction[] = directions;
+
+export interface LeafNode {
+  vertex: Vertex | null;
+  squareWidth: number;
 }
 
-export interface InternalNode {
+export interface BranchNode {
   totalCharge: number;
   vertices: Vertex[];
   centerOfCharge: P;
-  width: number;
+  squareWidth: number;
 
   NW?: QuadNode;
   SW?: QuadNode;
@@ -26,35 +27,31 @@ export interface InternalNode {
   SE?: QuadNode;
 }
 
-export type QuadNode = InternalNode | ExternalNode;
+export type QuadNode = BranchNode | LeafNode;
 
-export function isInternalNode(quadUnit: QuadNode): quadUnit is InternalNode {
-  return !!(quadUnit as InternalNode).centerOfCharge;
+export function isNotLeafNode(quadUnit: QuadNode): quadUnit is BranchNode {
+  return !!(quadUnit as BranchNode).centerOfCharge;
 }
 
-export interface Square {
-  origin: P;
-  end: P;
-}
+export type Square = [P, P];
 
 export function constructQuadTree(
   nodes: Vertex[],
   square: Square,
-  ctx?: CanvasRenderingContext2D,
+  // ctx?: CanvasRenderingContext2D,
   depth = 0
 ): QuadNode {
-  const { origin, end } = square;
+  const [origin, end] = square;
+  const squareVec = origin.vecTo(end);
+  const squareWidth = squareVec.x;
 
-  if (nodes && nodes.length !== undefined && nodes.length > 1) {
-    const squareVec = origin.vecTo(end);
-    const width = squareVec.x;
+  if (nodes.length > 1) {
+    const grouped = groupBy(nodes, node => getQuadOfVertex(square, node));
 
-    const grouped = groupBy(nodes, node => groupQuad(node, square));
+    const quads = mapValues(grouped, (vertices, quarterName: Direction) => {
+      const newSquare = getSubSquareByDirection(square, quarterName);
 
-    const quads = mapValues(grouped, (vertices, quarterName) => {
-      const newSquare = getNewSquare(quarterName, square);
-
-      return constructQuadTree(vertices, newSquare, ctx, depth + 1);
+      return constructQuadTree(vertices, newSquare, depth + 1);
     });
 
     const { totalCharge, totalPosition } = nodes.reduce(
@@ -73,19 +70,19 @@ export function constructQuadTree(
     // console.log(centerOfCharge);
 
     // DRAWING SQUARES
-    if (ctx) {
-      ctx.beginPath();
-      ctx.lineWidth = 4 / depth;
-      ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
-      ctx.stroke();
+    // if (ctx) {
+    //   ctx.beginPath();
+    //   ctx.lineWidth = 4 / depth;
+    //   ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
+    //   ctx.stroke();
 
-      ctx.beginPath();
-      const radius = sqrt(totalCharge / Math.PI) * 1.5;
-      ctx.arc(centerOfCharge.x, centerOfCharge.y, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = "orange";
-      ctx.fill();
-      ctx.fillStyle = "black";
-    }
+    //   ctx.beginPath();
+    //   const radius = sqrt(totalCharge / Math.PI) * 1.5;
+    //   ctx.arc(centerOfCharge.x, centerOfCharge.y, radius, 0, 2 * Math.PI);
+    //   ctx.fillStyle = "orange";
+    //   ctx.fill();
+    //   ctx.fillStyle = "black";
+    // }
 
     // END OF DRAWING SQUARES
 
@@ -94,93 +91,83 @@ export function constructQuadTree(
       totalCharge,
       centerOfCharge,
       vertices: nodes,
-      width
+      squareWidth
     };
-  } else {
-    if (ctx) {
-      ctx.beginPath();
-      ctx.lineWidth = 4 / depth;
-      ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
-      ctx.stroke();
-    }
+  } else if (nodes.length === 1) {
+    // if (ctx) {
+    //   ctx.beginPath();
+    //   ctx.lineWidth = 4 / depth;
+    //   ctx.rect(origin.x, origin.y, end.x - origin.x, end.y - origin.y);
+    //   ctx.stroke();
+    // }
 
-    return { vertex: nodes[0] };
+    return { vertex: nodes[0], squareWidth };
+  } else {
+    return { vertex: null, squareWidth };
   }
 }
 
-function newQuadParent(): InternalNode {
-  return {
-    totalCharge: 0,
-    vertices: [],
-    centerOfCharge: new P(0, 0),
-    width: 0
-  };
-}
+const newQuadParent = (): BranchNode => ({
+  totalCharge: 0,
+  vertices: [],
+  centerOfCharge: new P(0, 0),
+  squareWidth: 0
+});
 
-function groupQuad(node: Vertex, { origin, end }: Square) {
-  const centerX = origin.x + (end.x - origin.x) / 2;
-  const centerY = origin.y + (end.y - origin.y) / 2;
+export function getQuadOfVertex(square: Square, node: Vertex): Direction {
+  if (!isInSquare(square, node.position)) {
+    throw new Error("Vertex is outside square");
+  }
+  const [origin, end] = square;
+  const halfDiagonal = end.subtract(origin).divide(2);
+  const halfWidth = halfDiagonal.x;
+  const halfHeight = halfDiagonal.y;
+
+  const centerX = origin.x + halfWidth;
+  const centerY = origin.y + halfHeight;
+
+  const isNorth = node.position.y < centerY;
+
+  // isWest
   if (node.position.x < centerX) {
-    return node.position.y < centerY ? NW : SW;
+    return isNorth ? NW : SW;
   } else {
-    return node.position.y < centerY ? NE : SE;
+    return isNorth ? NE : SE;
   }
 }
 
-function isInSquare(point: P, origin: P, end: P): boolean {
-  const originSquare = [origin, end].map(vec => vec.subtract(origin));
-  const originPoint = point.subtract(origin);
-
-  const xInSquare =
-    (originPoint.x >= originSquare[0].x &&
-      originPoint.x <= originSquare[1].x) ||
-    (originPoint.x >= originSquare[1].x && originPoint.x <= originSquare[0].x);
-  const yInSquare =
-    (originPoint.y >= originSquare[0].y &&
-      originPoint.y <= originSquare[1].y) ||
-    (originPoint.y >= originSquare[1].y && originPoint.y <= originSquare[0].y);
-
+export function isInSquare([origin, end]: Square, point: P): boolean {
+  const xInSquare = point.x >= origin.x && point.x <= end.x;
+  const yInSquare = point.y >= origin.y && point.y <= end.y;
   return xInSquare && yInSquare;
 }
 
 // returns [origin, endCorner] coordinates, depending on the quad
-export function getNewSquare(quad: string, { origin, end }: Square): Square {
-  const centerPoint = origin.add(end.subtract(origin).divide(2));
-  switch (quad) {
+export function getSubSquareByDirection(
+  [origin, end]: Square,
+  direction: Direction
+): Square {
+  const halfDiagonal = end.subtract(origin).divide(2);
+  const halfWidth = halfDiagonal.x;
+  const halfHeight = halfDiagonal.y;
+  const centerPoint = origin.add(halfDiagonal);
+
+  const makeQuadFromOrigin = (point: P): Square => [
+    point,
+    point.add(halfDiagonal)
+  ];
+
+  switch (direction) {
     case NW:
-      // origin   = origin
-      // end      = origin + ((end - origin) / 2)
-      return {
-        origin,
-        end: centerPoint
-      };
-
+      return makeQuadFromOrigin(origin);
     case SW:
-      // origin   = x: origin.x, y: origin.y + ((end.y - origin.y) / 2)
-      // end      = x: origin.x + ((end.x - origin.x) / 2) ,y: end.y
-      return {
-        origin: new P(origin.x, origin.y + (end.y - origin.y) / 2),
-        end: new P(origin.x + (end.x - origin.x) / 2, end.y)
-      };
-
+      return makeQuadFromOrigin(new P(origin.x, origin.y + halfHeight));
     case NE:
-      // origin   = x: origin.x + ((end.x - origin.x) / 2), y: origin.y
-      // end      = x: end.x, y: origin.y + ((end.y - origin.y) / 2)
-      return {
-        origin: new P(origin.x + (end.x - origin.x) / 2, origin.y),
-        end: new P(end.x, origin.y + (end.y - origin.y) / 2)
-      };
-
+      return makeQuadFromOrigin(new P(origin.x + halfWidth, origin.y));
     case SE:
-      // origin   = origin + ((end - origin) / 2)
-      // end      = end
-      return {
-        origin: centerPoint,
-        end
-      };
-
+      return makeQuadFromOrigin(centerPoint);
     default:
-      throw new Error("No such position exists");
+      throw new Error(`'${direction}' is not a valid direction`);
   }
 }
 
